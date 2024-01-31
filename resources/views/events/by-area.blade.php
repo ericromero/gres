@@ -142,7 +142,7 @@
                                 <!-- Solo se pueden actualizar eventos sin publicar -->
                                 @if (($event->published==0&&$event->status!='finalizado')||$event->status=='solicitado')
                                     <div class="mx-2">
-                                        <a href="{{route('event.edit',$event->id)}}" class="text-green-700 hover:underline dark:text-green-300">Actualizar</a>
+                                        <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
                                     </div>
                                 @endif
 
@@ -171,7 +171,10 @@
 
                                 <!-- Se pueden publicar los eventos que tienen aceptado el espacio -->
                                 @if ($event->status=="finalizado"&&$event->published==0&&!$rechazado)
-                                    <div>
+                                <div class="mx-2">
+                                    <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
+                                </div>
+                                <div>
                                         <form action="{{ route('events.publish', ['id' => $event->id]) }}" method="POST">
                                             @csrf
                                             @method('PUT')
