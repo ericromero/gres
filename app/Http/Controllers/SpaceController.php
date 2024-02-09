@@ -16,8 +16,11 @@ class SpaceController extends Controller
 
     public function search(Request $request)
     {
-        // Código para obtener los eventos y mostrar el calendario
-        $allEvents = Event::all();
+        // Obtiene solo los eventos que no tienen espacios rechazados
+        $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
+            $query->where('status', '=', 'rechazado');
+        })->get();
+
         $events = [];
         foreach ($allEvents as $event) {
             // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
@@ -75,15 +78,20 @@ class SpaceController extends Controller
         $start_time=$request->input('start_time');
         $end_time=$request->input('end_time');
 
+        // Se obtiene los eventos que se traslapan 
         $overlappingEventIds = $this->getOverlappingEventIds($start_date, $end_date, $start_time, $end_time);
 
+        // Se obtiene la lista de espacios que no se pueden prestar ya que estan ocupados en eventos ya traslapados, excluyendo los que tienen un estado 'rechazado'
         $excludedSpaceIds = DB::table('event_spaces')
-            ->whereIn('event_id', $overlappingEventIds)
-            ->pluck('space_id');
+                    ->join('events', 'events.id', '=', 'event_spaces.event_id')
+                    ->whereIn('event_spaces.event_id', $overlappingEventIds)
+                    ->where('event_spaces.status', '!=', 'rechazado')
+                    ->pluck('event_spaces.space_id');
 
+        // Se obtiene la lista de los espacios disponibles, excluyendo aquellos que ya están ocupados
         $availableSpaces = DB::table('spaces')
-            ->whereNotIn('id', $excludedSpaceIds)
-            ->get();
+                    ->whereNotIn('id', $excludedSpaceIds)
+                    ->get();
 
 
         return view('events.availablesearch', compact('availableSpaces','start_date','end_date','start_time','end_time','events'));

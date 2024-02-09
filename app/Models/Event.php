@@ -134,4 +134,9 @@ class Event extends Model
         return $this->belongsTo(KnowledgeArea::class, 'knowledge_area_id');
     }
 
+    public function eventSpaces()
+    {
+        return $this->hasMany(EventSpace::class, 'event_id');
+    }
+
 }
