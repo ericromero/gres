@@ -38,6 +38,9 @@ class EventController extends Controller
     
         $events = Event::where('published', true)
             ->where('end_date', '>', $now)
+            ->whereDoesntHave('eventSpaces', function ($query) {
+                $query->where('status', '=', 'rechazado');
+            })
             ->get();
     
         foreach ($events as $event) {
@@ -75,7 +78,11 @@ class EventController extends Controller
     }
 
     public function availableSearch() {
-        $allEvents = Event::all();
+        // Obtiene solo los eventos que no tienen espacios rechazados
+        $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
+            $query->where('status', '=', 'rechazado');
+        })->get();
+
         $events = [];
         foreach ($allEvents as $event) {
             // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
@@ -736,7 +743,12 @@ class EventController extends Controller
     }
 
     public function calendario() {
-        $allEvents = Event::all();
+        // Obtiene solo los eventos que no tienen espacios rechazados
+        $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
+            $query->where('status', '=', 'rechazado');
+        })->get();
+
+
         $events = [];
         foreach ($allEvents as $event) {
             // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
