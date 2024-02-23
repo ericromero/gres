@@ -154,7 +154,7 @@
                                             @csrf
                                             @method('DELETE')
                                             
-                                            <button type="submit" class="text-red-700 hover:underline dark:text-orange-300" onclick="return confirm('¿Estás seguro de que deseas cancelar este registro?')">
+                                            <button type="submit" class="text-red-700 hover:underline dark:text-orange-300" onclick="return confirm('¿Estás seguro de que deseas cancelar este registro?  Esta acción borrará del sistema la solicitud.')">
                                                 {{ __('Cancelar registro') }}
                                             </button>
                                         </form>
@@ -177,6 +177,17 @@
                                             @method('PUT')
                                             <button type="submit" class="text-green-700 hover:underline dark:text-green-300">
                                                 Publicar Evento
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <!-- Botón para cancelar registro -->
+                                    <div class="mx-2">
+                                        <form action="{{ route('event.destroy', $event->id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            
+                                            <button type="submit" class="text-red-700 hover:underline dark:text-orange-300" onclick="return confirm('¿Estás seguro de que deseas cancelar este registro? Esta acción borrará del sistema la solicitud.')">
+                                                {{ __('Cancelar registro') }}
                                             </button>
                                         </form>
                                     </div>

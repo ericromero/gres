@@ -35,12 +35,34 @@ class EventController extends Controller
 {
     public function cartelera() {
         $now = Carbon::now();
-
+    
         $events = Event::where('published', true)
             ->where('end_date', '>', $now)
             ->get();
-
-        return view('welcome',compact('events'));
+    
+        foreach ($events as $event) {
+            $start_date = Carbon::createFromFormat('Y-m-d', $event->start_date);
+            $end_date = Carbon::createFromFormat('Y-m-d', $event->end_date);
+    
+            $date_time_text = '';
+    
+            // Si el evento comienza y termina en el mismo día
+            if ($start_date->isSameDay($end_date)) {
+                $date_time_text = ucfirst($start_date->isoFormat('dddd D [de] MMMM')) . ' de ' . substr($event->start_time, 0, 5) . ' a ' . substr($event->end_time, 0, 5) . ' horas';
+            } else {
+                // Si el evento abarca varios días
+                $start_text = $start_date->isoFormat('D [de] MMMM');
+                $end_text = $end_date->isoFormat('D [de] MMMM');
+                if ($start_date->month === $end_date->month) {
+                    $start_text = substr($start_text, 0, strpos($start_text, 'de'));
+                }
+                $date_time_text = 'Del ' . $start_date->isoFormat('dddd') . ' ' . $start_text . ' al ' . $end_date->isoFormat('dddd') . ' ' . $end_text . ' de ' . substr($event->start_time, 0, 5) . ' a ' . substr($event->end_time, 0, 5) . ' horas';
+            }
+    
+            $event->date_time_text = $date_time_text;
+        }
+    
+        return view('welcome', compact('events'));
     }
 
     public function myEvents()

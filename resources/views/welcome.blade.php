@@ -20,51 +20,43 @@
                     <a href="{{route('eventos.calendario')}}" class="text-blue-500 hover:underline">Ver calendario</a>
                 </div>
                 <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+
+                    {{-- Inicia el ciclo para publicar todos los eventos --}}
                     @foreach ($events as $event)
-                        <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4">
-                            
+                        <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4" style="min-width: 200px; max-width: 400px;min-height: 350px; y max-height: 500px;">
                             @if($event->cancelled == 1)
                                 <div class="text-red-700 text-center font-bold">EVENTO CANCELADO</div>
                             @endif
-
-                            <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-40 object-cover">
-                            <div class="p-4">
-                                <h2 class="text-xl font-semibold mb-2">{{ $event->title }}</h2>
-                                <p class="text-gray-500 mb-2">{{ $event->summary }}</p>
-                                
-                                @if($event->cancelled == 0)
-                                    <p><strong>Responsable:</strong> {{ $event->responsible->name }}</p>
-                                    <p><strong>Fecha:</strong> {{ $event->start_date }}
+                            {{-- <h2 class="text-xl font-semibold p-4">{{ $event->title }}</h2> --}}
+                            <div class="relative" style="min-height: 300px; max-height: 500px;min-height: 350px; y max-height: 500px;">
+                                <a href="{{ route('events.show', ['event' => $event]) }}">
+                                    <div class="absolute inset-0 bg-cover bg-center hover:bg-opacity-80 transition duration-300" style="background-image: url('{{asset($event->cover_image)}}');">
+                                    </div>
+                                </a>
+                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                                    {{-- <p class="text-sm"><strong>Fecha:</strong> {{ $event->start_date }}
                                         @if($event->start_date!=$event->end_date)
                                         - {{ $event->end_date }}
                                         @endif
                                     </p>
-                                    <p><strong>Horario:</strong> {{ $event->start_time }} - {{ $event->end_time }}</p>
-                                    
-                                    <p><strong>Lugar:</strong>
+                                    <p class="text-sm"><strong>Horario:</strong> {{ $event->start_time }} - {{ $event->end_time }}</p> --}}
+                                    <p class="text-sm">{{ $event->date_time_text }}</p>
+
+                                    {{-- <p class="text-sm"><strong>Lugar:</strong>
                                         @foreach($event->spaces as $event_space)
                                             {{$event_space->name}} ({{$event_space->location}})<br>
                                         @endforeach
-                                    </p>
-                                    
+                                    </p> --}}
                                     @if ($event->registration_url!=null)
-                                        <p><strong>Registro:</strong> {{ $event->registration_url }}</p>
+                                        <p class="text-sm"><strong>Registro:</strong> {{ $event->registration_url }}</p>
                                     @else
-                                        <p><strong>Registro:</strong>No se requiere</p>
+                                        <p class="text-sm">Entrada libre.</p>
                                     @endif
-
-                                    @if ($event->program)
-                                        <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 underline" download>Descargar Programa</a></p>
-                                    @endif
-
-                                    @if ($event->registration_required)
-                                        <a href="{{ $event->registration_url }}" class="mt-2 block text-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Registrarse</a>
-                                    @endif
-                                @endif
+                                </div>
                             </div>
-                            
                         </div>
                     @endforeach
+                
                 </div>
             @endif
         </div>
