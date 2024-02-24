@@ -25,26 +25,29 @@
                     
 
                     @foreach ($events as $event)
-                        <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4">
-                            @if($event->cancelled == 1)
-                                <div class="text-red-700 text-center font-bold">EVENTO CANCELADO</div>
-                            @endif
+    <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} relative dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4" style="min-height: 350px; max-height: 500px;">
+        @if($event->cancelled == 1)
+            <div class="text-red-700 text-center font-bold">EVENTO CANCELADO</div>
+        @endif
 
-                            <div class="relative">
-                                <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-40 object-cover rounded-t-lg">
+        <div>
+            <a href="{{ route('events.show', ['event' => $event]) }}">
+                <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-full object-cover rounded-t-lg">
+            </a>            
+        </div>
 
-                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2">
-                                    <p class="text-sm">{{ $event->date_time_text }}</p>
-                                </div>
+        <div class="absolute bottom-0 left-0 bg-gray-700 opacity-80 text-white w-full p-4">
+            <p class="text-sm">{{ $event->date_time_text }}</p>                               
 
-                                @if ($event->registration_url!=null)
-                                    <p class="text-sm"><strong>Registro:</strong> {{ $event->registration_url }}</p>
-                                @else
-                                    <p class="text-sm">Entrada libre.</p>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
+            @if ($event->registration_url != null)
+                <p class="text-sm"><strong>Registro:</strong> {{ $event->registration_url }}</p>
+            @else
+                <p class="text-sm">Entrada libre.</p>
+            @endif
+        </div>
+
+    </div>
+@endforeach
                 
                 </div>
             @endif
