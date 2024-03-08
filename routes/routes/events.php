@@ -62,6 +62,15 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
 
     // Ruta para publicar un evento
     Route::put('/events/{id}/publicar', [EventController::class, 'publish'])->name('events.publish');
+
+    // Ruta para seleccionar los recursos para el evento
+    Route::get('/events/{event}/recursos', [EventController::class, 'selectResources'])->name('event.selectResources');
+
+    // Agregar los recursos al evento
+    Route::get('/events/agregar/recurso/{event}/{resource}', [EventController::class, 'addResource'])->name('event.addResource');
+
+    // Quitar al recurso de la reserva del espacio
+    Route::get('/events/quitar/recurso/{reservedResource}/{event}', [EventController::class, 'removeResource'])->name('event.removeResource');
     
 });
 

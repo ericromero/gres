@@ -102,11 +102,11 @@
 
                         <!-- Notificación de eventos por atender al día -->
                         @if ($eventsArea!=null&&$eventsArea->count()==1)
-                            <a href="{{ route('events.byDay') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                            <a href="{{ route('events.byDay') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                 Hoy hay 1 evento.
                             </a>
                         @elseif ($eventsArea!=null&&$eventsArea->count()>1)
-                            <a href="{{ route('events.byDay') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                            <a href="{{ route('events.byDay') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                 Hoy hay {{$eventsArea->count()}} eventos.
                             </a>
                         @endif
@@ -135,22 +135,22 @@
 
                             <!-- Notificación de eventos en borrador -->
                             @if ($draftEvents->count()==1)
-                                <a href="{{ route('events.byArea.drafts') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                                <a href="{{ route('events.byArea.drafts') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                     Hay un evento sin registrar.
                                 </a>
                             @elseif ($draftEvents->count()>1)
-                                <a href="{{ route('events.byArea.drafts') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                                <a href="{{ route('events.byArea.drafts') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                     Hay {{ $draftEvents->count() }} eventos sin registrar.
                                 </a>
                             @endif
 
                             <!-- Notificación de eventos aceptado y no publicados -->                            
                             @if ($unplublishEvents->count()==1)
-                                <a href="{{ route('events.byArea.unPublish') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                                <a href="{{ route('events.byArea.unPublish') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                     Hay un evento sin publicar.
                                 </a>
                             @elseif ($unplublishEvents->count()>1)
-                                <a href="{{ route('events.byArea.unPublish') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                                <a href="{{ route('events.byArea.unPublish') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                     Hay {{ $unplublishEvents->count() }} eventos sin publicar.
                                 </a>
                             @endif
@@ -169,11 +169,11 @@
 
                         <!-- Notificación de espacios solicitados sin atender -->
                         @if ($pendingEvents->count()==1)
-                            <a href="{{ route('event_spaces.awaitingRequests') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                            <a href="{{ route('event_spaces.awaitingRequests') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-900 dark:text-gray-700">
                                 Hay una solicitud pendiente.
                             </a>
                         @elseif ($pendingEvents->count()>1)
-                            <a href="{{ route('event_spaces.awaitingRequests') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-300">
+                            <a href="{{ route('event_spaces.awaitingRequests') }}" class="block text-center rounded-lg shadow-lg p-1 m-2 border border-orange-600 bg-orange-300 hover:bg-orange-100 hover:text-gray-700 dark:bg-orange-200 text-gray-700 dark:text-gray-700">
                                 Hay {{ $pendingEvents->count() }} solicitudes pendientes.
                             </a>
                         @endif

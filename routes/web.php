@@ -51,3 +51,4 @@ require __DIR__.'/routes/permissions.php';
 require __DIR__.'/routes/event-type.php';
 require __DIR__.'/routes/event-participant.php';
 require __DIR__.'/routes/event-spaces.php';
+require __DIR__.'/routes/resources.php';

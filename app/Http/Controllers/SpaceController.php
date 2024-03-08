@@ -10,12 +10,40 @@ use App\Models\Department;
 use Illuminate\Support\Facades\DB;
 use App\Models\Event;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class SpaceController extends Controller
 {
 
     public function search(Request $request)
     {
+        $rules = [
+            'start_date' => 'date|after_or_equal:' . now()->addWeekdays(4)->format('Y-m-d'),
+            'end_date' => 'date|after_or_equal:start_date|before_or_equal:' . now()->addMonths(6)->format('Y-m-d'),
+            'start_time' => 'date_format:H:i|after_or_equal:09:00|before_or_equal:18:00',
+            'end_time' => 'date_format:H:i|after:start_time|before_or_equal:19:00',
+        ];
+
+        $messages = [
+            'start_date.date' => 'El campo fecha de inicio debe ser una fecha válida.',
+            'start_date.after_or_equal' => 'La fecha de inicio debe ser al menos 4 días hábiles después de hoy.',
+            'end_date.date' => 'El campo fecha de término debe ser una fecha válida.',
+            'end_date.after_or_equal' => 'La fecha de término debe ser después o igual a la fecha de inicio.',
+            'end_date.before_or_equal' => 'La fecha de término debe ser como máximo dentro de los próximos 6 meses.',
+            'start_time.date_format' => 'El campo hora de inicio debe tener el formato de hora HH:MM.',
+            'start_time.after_or_equal' => 'La hora de inicio debe ser como mínimo a las 09:00.',
+            'start_time.before_or_equal' => 'La hora de inicio debe ser como máximo a las 18:00.',
+            'end_time.date_format' => 'El campo hora de término debe tener el formato de hora HH:MM.',
+            'end_time.after' => 'La hora de término debe ser posterior a la hora de inicio.',
+            'end_time.before_or_equal' => 'La hora de término debe ser como máximo a las 19:00.',
+        ];
+    
+        $validator = Validator::make($request->all(), $rules, $messages);
+    
+        if ($validator->fails()) {
+            return redirect()->route('dashboard')->with('error', $validator->errors()->first())->withInput();
+        }
+
         // Obtiene solo los eventos que no tienen espacios rechazados
         $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
             $query->where('status', '=', 'rechazado');

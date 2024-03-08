@@ -107,7 +107,7 @@
                         <!-- Responsable -->
                         <div class="border p-2 border-gray-700 dark:border-gray-300">                            
                             <div class="mb-4">
-                                <label for="responsible" class="block font-bold mb-2">Responsable: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
+                                <label for="responsible" class="block font-bold mb-2">Solicitante (responsable de organizar el evento): <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="Selecciona al académico(a) que está organizando el evento y es responsable de realizar los trámites necesarios para llevarlo a cabo. En caso de no encontarlo en la lista, selecciona 'Otro responsable' e ingresa la información.">?</span>
                                 </label>
                                 <select name="responsible" id="responsible" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('responsible') border-red-500 @enderror" required>
@@ -222,6 +222,38 @@
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
                             <p class="text-gray-500 dark:text-gray-300 text-sm">Caracteres restantes: <span id="char-count-summary">500</span></p>
+                        </div>
+
+                        <!-- Correo de contacto -->
+                        <div class="mb-4">
+                            <label for="contact_email" class="block dark:text-gray-300 font-bold mb-2">Correo de contacto: <span class="text-sm">(campo opcional)</span><span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Correo electrónico público al que se puede solicitar mayor información.">?</span></label>
+                            <input type="email" name="contact_email" id="contact_email" class="w-full form-input dark:bg-gray-800 dark:text-white @error('contact_email') border-red-500 @enderror" value="{{ old('contact_email') }}">
+                            
+                            @error('contact_email')
+                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Sitio web -->
+                        <div class="mb-4">
+                            <label for="website" class="block dark:text-gray-300 font-bold mb-2">Sitio web: <span class="text-sm">(campo opcional, comience con http o https)</span><span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si cuenta con un sitio web específico del evento, puede difundirlo a través de este enlace.">?</span></label>
+                            <input type="text" name="website" id="website" class="w-full form-input dark:bg-gray-800 dark:text-white @error('website') border-red-500 @enderror" value="{{ old('website') }}" placeholder="http://...">
+                            
+                            @error('website')
+                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Requisitos adicionales -->
+                        <div class="mb-4">
+                            <label for="requirements" class="block font-bold mb-2">Requisitos adicionales: 
+                                <span class="text-sm">(campo opcional, información adicional sobre el uso del espacio)</span>
+                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requieres algo adicional como un acomodo de sillones, mesas, sillas, ect. descríbelo en este apartado.">?</span></label>
+                            <textarea name="requirements" id="requirements" maxlength="500" rows="4" class="w-full form-textarea dark:bg-gray-800 dark:text-white @error('requirements') border-red-500 @enderror">{{ old('requirements') }}</textarea>
+                            @error('requirements')
+                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror
+                            <p class="text-gray-500 dark:text-gray-300 text-sm">Caracteres restantes: <span id="char-count-requirements">500</span></p>
                         </div>
 
                         <!-- Fechas y horarios -->
@@ -363,21 +395,24 @@
 
                         <!-- Banner del evento -->
                         <div class="mb-4">
-                            <label for="cover_image" class="block font-bold mb-2">Banner o imagen publicitaria: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Esta imagen será utilizada para mostrar en la cartelera, debe ser breve y atractiva para el público interesado. Solo se admiten los formatos .jpg, .jpeg y .png con un peso máximo de 5 MB">?</span></label>
+                            <label for="cover_image" class="block font-bold mb-2">Cartel publicitario (imagen en formato horizontal). 
+                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Esta imagen será utilizada para mostrar en la cartelera, debe ser breve y atractiva para el público interesado. Solo se admiten los formatos .jpg, .jpeg y .png con un peso máximo de 5 MB">?</span>
+                                <br>En caso de no contar con el cartel del evento, puede agregarlo en otro momento.
+                            </label>
                             <input 
                                 type="file" 
                                 name="cover_image" 
                                 id="cover_image"                                 
                                 accept=".jpg, .jpeg, .png"
                                 maxlength="5242880"
-                                class="form-input dark:bg-gray-800 dark:text-white @error('cover_image') border-red-500 @enderror" required>
+                                class="form-input dark:bg-gray-800 dark:text-white @error('cover_image') border-red-500 @enderror">
                             @error('cover_image')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <!-- Programa -->
-                        <div class="mb-4">
+                        {{-- <div class="mb-4">
                             <label for="program" class="block font-bold mb-2">Cartel o programa: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Suba un documento con mayor información sobre el evento, puede ser un cartel o el programa. Solo se admite el formato pdf con un peso máximo de 5 MB">?</span></label>
                             <input
                                 type="file"
@@ -389,7 +424,7 @@
                             @error('program')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
-                        </div>
+                        </div> --}}
 
                         <!-- Se requiere registro -->
                         <div class="mb-4">
@@ -492,19 +527,36 @@
     });
 </script>
 
+<!-- Contador de caracteres del resumen -->
 <script>
-    const textarea = document.getElementById('summary');
-    const counter = document.getElementById('char-count-summary');
+    const textarea_summary = document.getElementById('summary');
+    const counter_summary = document.getElementById('char-count-summary');
 
-    textarea.addEventListener('input', function () {
-        const maxLength = parseInt(textarea.getAttribute('maxlength'), 10);
-        const currentLength = textarea.value.length;
+    textarea_summary.addEventListener('input', function () {
+        const maxLength = parseInt(textarea_summary.getAttribute('maxlength'), 10);
+        const currentLength = textarea_summary.value.length;
 
         if (currentLength > maxLength) {
-            textarea.value = textarea.value.substring(0, maxLength);
+            textarea_summary.value = textarea_summary.value.substring(0, maxLength);
         }
 
-        counter.textContent = `${currentLength}/${maxLength}`;
+        counter_summary.textContent = `${currentLength}/${maxLength}`;
+    });
+</script>
+
+<!-- Contador de caracteres de requisitos adicionales -->
+<script>
+    const textarea_requirements = document.getElementById('requirements');
+    const counter_requirements = document.getElementById('char-count-requirements');
+    textarea_requirements.addEventListener('input', function () {
+        const maxLength = parseInt(textarea_requirements.getAttribute('maxlength'), 10);
+        const currentLength = textarea_requirements.value.length;
+
+        if (currentLength > maxLength) {
+            textarea_requirements.value = textarea_requirements.value.substring(0, maxLength);
+        }
+
+        counter_requirements.textContent = `${currentLength}/${maxLength}`;
     });
 </script>
 

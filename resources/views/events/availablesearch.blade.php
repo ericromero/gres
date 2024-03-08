@@ -81,7 +81,7 @@
                         
                         <div class="my-2">
                             <label for="start_date" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Fecha de inicio</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="start_date" min="{{ now()->addDays(4)->format('Y-m-d') }}" max="{{ now()->addMonths(6)->format('Y-m-d') }}" value="{{ old('start_date') }}" required>
+                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="start_date" min="{{ now()->addWeekdays(4)->format('Y-m-d') }}" max="{{ now()->addMonths(6)->format('Y-m-d') }}" value="{{ old('start_date') }}" required>
                         </div>
                         @error('start_date')
                             <span class="text-sm text-red-500">{{ $message }}</span>
@@ -89,7 +89,7 @@
                         
                         <div class="my-2">
                             <label for="end_date" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Fecha de fin</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="end_date" min="{{ now()->addDays(4)->format('Y-m-d') }}" max="{{ now()->addMonths(6)->format('Y-m-d') }}" value="{{ old('end_date') }}" required>                            
+                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="end_date" min="{{ now()->addWeekdays(4)->format('Y-m-d') }}" max="{{ now()->addMonths(6)->format('Y-m-d') }}" value="{{ old('end_date') }}" required>                            
                         </div>
                         @error('end_date')
                             <span class="text-sm text-red-500">{{ $message }}</span>
@@ -97,7 +97,7 @@
                         
                         <div class="my-2">
                             <label for="start_time" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Hora de inicio</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="time" name="start_time" step="1800" value="{{ old('start_time') }}" required>                            
+                            <input class="dark:bg-gray-800 dark:text-white" type="time" name="start_time" step="1800" min="09:00" max="18:00" value="{{ old('start_time') }}" required>                            
                         </div>
                         @error('start_time')
                             <span class="text-sm text-red-500">{{ $message }}</span>
@@ -105,7 +105,7 @@
                         
                         <div class="my-2">
                             <label for="end_time" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Hora de termino</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="time" name="end_time" step="1800" value="{{ old('end_time') }}" required>                            
+                            <input class="dark:bg-gray-800 dark:text-white" type="time" name="end_time" step="1800" min="10:00" max="19:00" value="{{ old('end_time') }}" required>                            
                         </div>
                         @error('end_time')
                             <span class="text-sm text-red-500">{{ $message }}</span>

@@ -41,5 +41,4 @@ class Space extends Model
     {
         return $this->hasMany(EventSpace::class, 'space_id');
     }
-
 }

@@ -12,6 +12,10 @@
             <div class="bg-green-200 text-green-800 p-4 mb-4 rounded-md">
                 {{ session('success') }}
             </div>
+        @elseif(session('error'))
+            <div class="bg-red-200 text-red-800 p-4 mb-4 rounded-md">
+                {{ session('error') }}
+            </div>
         @endif
 
         <!-- Botón para crear un nuevo departamento -->
@@ -33,6 +37,7 @@
                     @endif
                     <div class="p-2 flex justify-end items-center space-x-2">
                         <a href="{{ route('departments.edit', $department) }}" class="text-blue-500 dark:text-blue-300 hover:underline">Actualizar</a>
+                        <a href="{{ route('department.resources', $department) }}" class="ml-2 text-green-500 dark:text-green-300 hover:underline">Recursos</a>
                         <form action="{{ route('departments.destroy', $department) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este departamento?')">
                             @csrf
                             @method('DELETE')

@@ -40,5 +40,4 @@ Route::middleware(['role:Administrador'])->group(function () {
     // Ruta para eliminar un espacio
     Route::delete('/espacio/{space}', [SpaceController::class, 'destroy'])->name('spaces.destroy');
 
-
 });

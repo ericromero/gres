@@ -17,7 +17,7 @@
                 </div>
             @else
                 <div class="mb-4">
-                    <a href="{{route('eventos.calendario')}}" class="text-blue-500 hover:underline">Ver calendario</a>
+                    <a href="{{route('eventos.calendario')}}" class="text-blue-700 dark:text-blue-200 hover:underline">Ver calendario</a>
                 </div>
                 <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
 

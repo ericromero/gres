@@ -3,10 +3,14 @@
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Espacios solicitados') }}
         </h2>
+        <div class="text-gray-700 dark:text-gray-300">
+            Estos son los eventos que han solicitado el uso de uno o varios espacios de la coordinación.
+            <br>Da clic sobre cada miniatura para abrir en una nueva ventana el cartel del evento. 
+        </div>
 
     </x-slot>
 
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-700">
         {{-- Código para el manejo de notificaciones --}}
         @if(session('success'))
             <div class="bg-green-200 text-green-800 p-4 mb-4 rounded-md">
@@ -23,7 +27,7 @@
                 <p class="text-xl font-semibold">No hay solicitudes que atender</p>
             </div>
         @else
-            <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 text-gray-700 dark:text-gray-200">
                 @foreach ($events as $event)
                     
                     <!-- Código para saber si está rechazado -->
@@ -43,19 +47,30 @@
 
                     <div class="overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4 border border-gray-700 dark:border-gray-300
                         @if($rechazado)
-                            bg-red-50 border-red-700
+                            border-red-700 dark:border-red-300
                         @elseif(!$rechazado&&$event->status=="finalizado")
-                            bg-green-50 border-green-700
+                            border-green-700 dark:border-green-300
                         @else
-                            bg-yellow-50 border-yellow-600
+                            border-yellow-700 dark:border-yellow-300
                         @endif
                         ">
                         
-                        <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-40 object-cover">
+                        <div class="text-center">
+                            <h2 class="text-xl font-semibold mb-2">{{ $event->title }}</h2>
+                        </div>
+                        
+
+                        @if ($event->cover_image==null)                            
+                            <img src="{{asset('images/unam.png')}}" alt="No se ha subido el cartel" class="m-2 w-20 h-20 object-cover bg-slate-300">
+                            <br>No se ha subido el cartel del evento.
+                        @else
+                            <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-20 h-20 object-cover cursor-pointer" onclick="window.open('{{ asset($event->cover_image) }}')">
+                        
+                        @endif
+                        
                         
                         <div class="p-4">
-                            <h2 class="text-xl font-semibold mb-2">{{ $event->title }}</h2>
-                            <p class="text-gray-500 dark:text-gray-300 mb-2">{{ $event->summary }}</p>
+                            <p class="mb-2">{{ $event->summary }}</p>
                             
                             <p><strong>Espacios solicitados:</strong>
                                 @foreach($event->spaces as $event_space)

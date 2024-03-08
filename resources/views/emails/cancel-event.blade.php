@@ -3,14 +3,14 @@
 
 ![Logo]({{ asset('images/50anios.png') }})
 
-# Lo sentimos, la solicitud para uso del espacio solicitado no fue autorizada.
+# Buen día, le notificamos que se ha realizado la cancelación del siguiente evento.
 
 - Evento: {{ $event->title }}.
 - Departamento: {{ $event->department->name }}
 - Responsable del evento: {{ $event->responsible->name }} ({{ $event->responsible->email }})
 - Periodo: del {{ $event->start_date }} al {{ $event->end_date }}.
 - Horario: De {{ $event->start_time }} horas a {{ $event->end_time }} horas.
-- Motivo de rechazo: {{ $reason }}
+- Motivo de cancelación: {{ $cancellationReason }}
 
 Para consultar la información sobre el evento, ingrese al sitio web Cartelera-Psicología.
 @component('mail::button', ['url' => url('/')])

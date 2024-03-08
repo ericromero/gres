@@ -204,7 +204,7 @@
                 @if ($event->start_date > now() )
                     <!-- Botón para cerrar el registro -->
                     <a href="{{route('events.register',$event->id)}}" class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md"
-                        onclick="return confirm('Una vez registrado el evento no podrá modificar la información primordial como lo es el título, fechas y espacio solicitado del evento. ¿Desea continuar?')">
+                        onclick="return confirm('Una vez que se registre la solicitud del evento no podrá modificar fechas, horarios ni espacios solicitados, pero si podrá cambiar el título, participantes y el cartel del evento. ¿Desea continuar?')">
                         {{ __('Registrar evento') }}
                     </a>
                     <!-- Botón para cancelar registro -->

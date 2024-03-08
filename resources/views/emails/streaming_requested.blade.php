@@ -19,7 +19,7 @@ Póngase en contacto con la Coordinación o responsable solicitante para informa
 
 {{-- Salutation --}}
 Saludos,<br>
-Cartelera de eventos de la Psicología de la UNAM.
+Cartelera de eventos de la Facultad de Psicología de la UNAM.
 
 {{-- Subcopy --}}
 @component('mail::subcopy')

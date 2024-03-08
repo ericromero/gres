@@ -6,13 +6,22 @@
     </x-slot>
 
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-        <form method="POST" action="{{ route('departments.store') }}">
+        <form method="POST" action="{{ route('departments.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
                 <label for="name" class="block">Nombre corto o alias del Departamento:</label>
                 <input type="text" name="name" id="name" class="form-input dark:bg-gray-800 dark:text-white rounded-md @error('name') border-red-500 @enderror" value="{{ old('name') }}" required>
                 @error('name')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Subir nuevo logo -->
+            <div class="mb-4">
+                <label for="logo" class="block text-gray-600">Nuevo Logo: (Máximo 2 MB y formato png o jpg) <br>Puede dejar este campo en blanco y se agregará por omisión el logo de la UNAM.</label>
+                <input type="file" name="logo" id="logo" class="form-input dark:bg-gray-800 dark:text-white rounded-md" accept="image/png, image/jpg">
+                @error('logo')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>

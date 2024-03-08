@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
-    protected $fillable = ['name', 'description','institution_id', 'responsible_id'];
+    protected $fillable = ['name', 'logo','description','institution_id', 'responsible_id'];
 
     public function institution()
     {
@@ -38,5 +38,10 @@ class Department extends Model
     public function team()
     {
         return $this->hasOne(Team::class);
+    }
+
+    public function resources()
+    {
+        return $this->hasMany(Resource::class);
     }
 }

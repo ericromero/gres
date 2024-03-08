@@ -25,4 +25,11 @@ Route::middleware(['role:Administrador'])->group(function () {
 
     // Ruta para eliminar un departamento
     Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+
+    // Buscador de espacios disponibles
+    Route::get('/recursos/{department}', [DepartmentController::class,'resources'])->name('department.resources');
+
+    // Buscador de espacios disponibles
+    Route::post('/recursos/agregar/{department}', [DepartmentController::class,'addResources'])->name('department.addResources');
+
 });

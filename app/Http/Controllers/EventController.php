@@ -29,7 +29,10 @@ use App\Mail\NewEventMail;
 use App\Models\Audience;
 use App\Models\KnowledgeArea;
 use App\Models\EventCategory;
-
+use App\Models\EventResource;
+use App\Models\Resource;
+use App\Models\Team;
+use App\Mail\CancelEventMail;
 
 class EventController extends Controller
 {
@@ -169,6 +172,12 @@ class EventController extends Controller
                 'string',
                 'nullable',
                 'max:500'],
+            'requirements' => [
+                'string',
+                'nullable',
+                'max:500'],
+            'contact_email' => ['nullable', 'email'],
+            'website' => ['nullable', 'url'],
             'start_date' => [
                 'required',
                 'date','
@@ -194,17 +203,10 @@ class EventController extends Controller
             'gender_equality' => ['required', Rule::in(['No', 'Equidad de género', 'Estadísticas desagregadas por sexo', 'Género', 'Igualdad de género'])],
             'knowledge_area' => 'required|integer|exists:knowledge_areas,id',
             'cover_image' => [
-                'required',
+                'nullable',
                 'image',
                 'mimes:jpeg,png,jpg',
-                'max:5120'],
-            'program' => [
-                'required',
-                'file',
-                'mimes:pdf',
-                'max:5120',
-                'nullable'
-            ],
+                'max:5120'],            
             'registration_url' => [
                 'nullable',
                 'required_if:registration_required,1'],
@@ -274,6 +276,9 @@ class EventController extends Controller
             'summary.required' => 'El resumen del evento es obligatorio.',
             'summary.string' => 'El resumen del evento debe ser una cadena de texto.',
             'summary.max'=>'El resumen no debe exceder los 500 caracteres.',
+
+            'requirements.string' => 'Los requisitos adicionales deben ser una cadena de texto.',
+            'requirements.max'=>'Los requisitos adicionales no deben exceder los 500 caracteres.',
             
             'start_date.required' => 'La fecha de inicio es obligatoria.',
             'start_date.date' => 'La fecha de inicio debe ser una fecha válida.',
@@ -293,15 +298,9 @@ class EventController extends Controller
             'end_time.after' => 'La hora de finalización debe ser posterior a la hora de inicio.',
             'end_time.before_or_equal' => 'La hora de finalización debe ser igual o anterior a las 09:00 PM.',
             
-            'cover_image.required' => 'Se requiere adjuntar una imagen de portada.',
             'cover_image.image' => 'El archivo de imagen de portada debe ser una imagen válida.',
             'cover_image.mimes' => 'Los formatos admitidos para la imagen de portada son .jpg, .jpeg y .png',
             'cover_image.max' => 'La imagen de portada es demasiado pesada, el tamaño máximo permitido es de 5 MB.',
-            
-            'program.required' => 'Se requiere adjuntar un programa en formato PDF.',
-            'program.file' => 'El archivo del programa debe ser un archivo válido.',
-            'program.mimes' => 'El formato admitido para el programa es PDF.',
-            'program.max' => 'El archivo del programa es demasiado pesado, el tamaño máximo permitido es de 5 MB.',
             
             'registration_required.boolean' => 'El campo "Registro requerido" debe ser verdadero o falso.',
             'registration_url.required_if' => 'La URL de registro es obligatoria cuando el registro es requerido.',
@@ -327,6 +326,10 @@ class EventController extends Controller
             'email_coresponsible.required_if' => 'El campo "Correo electrónico del otro corresponsable" es obligatorio cuando seleccionas "Otro corresponsable".',
             'email_coresponsible.email' => 'El correo electrónico invalido.',
             'email_coresponsible.unique' => 'Ya hay un usuario registrado con este correo electrónico.',
+
+            'contact_email.email' => 'Por favor, ingresa una dirección de correo electrónico válida.',
+
+            'website.url' => 'Por favor, ingresa una URL válida para el sitio web.',
         ];
     
         $validatedData = $request->validate($rules, $messages);
@@ -396,6 +399,9 @@ class EventController extends Controller
         // $event->space_id = $request->input('space_id');
         $event->registration_required  = $request->has('registration_required');
         $event->registration_url = $request->input('registration_url');
+        $event->contact_email = $request->filled('contact_email') ? $request->input('contact_email') : null;
+        $event->website = $request->filled('website') ? $request->input('website') : null;
+        $event->requirements = $request->filled('requirements') ? $request->input('requirements') : null;
 
         // Guardar la imagen de portada
         if ($request->hasFile('cover_image')) {
@@ -409,12 +415,12 @@ class EventController extends Controller
         $event->event_type_id = $request->input('event_type_id');
 
         // Guardar el programa si está presente
-        if ($request->hasFile('program')) {
-            $programFile = $request->file('program');
-            $programName = time() . '_' . $programFile->getClientOriginalName();
-            $programFile->move(public_path('program_files'), $programName);
-            $event->program = 'program_files/' . $programName;
-        }
+        // if ($request->hasFile('program')) {
+        //     $programFile = $request->file('program');
+        //     $programName = time() . '_' . $programFile->getClientOriginalName();
+        //     $programFile->move(public_path('program_files'), $programName);
+        //     $event->program = 'program_files/' . $programName;
+        // }
 
         $event->transmission_required = $request->has('transmission_required');
         $event->recording_required = $request->has('recording_required');
@@ -448,16 +454,26 @@ class EventController extends Controller
             $eventRecording->save();
         }
 
+        // En caso de que se haya elegido el uso de un espacio físico, se envía a la pantalla para uso de recursos de dicho espacio
+        if($request->input('space')!=null) {
+            return redirect()->route('event.selectResources',$event->id);
+        }
+
         return redirect()->route('events.participants',$event->id);
         //return redirect()->route('events.my-events')->with('success', 'El evento ha sido creado exitosamente.');
     }
 
     public function edit(Event $event)
     {
-        // Solo se pueden editar eventos no publicados y vigentes
-        // if($event->published==1||$event->start_date>=now()) {
-        //     return redirect()->route('events.byArea')->with('error','El evento no puede ser actualizado.');
-        // }
+        //Solo se pueden editar eventos no publicados y vigentes
+        if($event->published==1) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está publicado, no puede modificarse.');
+        }
+
+        //Solo se pueden editar eventos no publicados y vigentes
+        if($event->start_date<=now()) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está expiró, no puede modificarse.');
+        }
 
         // Obtén el usuario autenticado
         $user = Auth::user();
@@ -477,12 +493,28 @@ class EventController extends Controller
     }
 
     public function update(Event $event, Request $request) {
+        //Solo se pueden editar eventos no publicados y vigentes
+        if($event->published==1) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está publicado, no puede modificarse.');
+        }
+
+        //Solo se pueden editar eventos no publicados y vigentes
+        if($this->getEventExpired($event)) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está expiró, no puede modificarse.');
+        }
+        
         $rules = [
+            'title' => [
+                'nullable',
+                'string',
+                'max:250'],
             'cover_image' => [
                 'nullable',
                 'image',
                 'mimes:jpeg,png,jpg',
                 'max:5120'],
+            'contact_email' => ['nullable', 'email'],
+            'website' => ['nullable', 'url'],
             'program' => [
                 'file',
                 'mimes:pdf',
@@ -492,6 +524,9 @@ class EventController extends Controller
         ];
     
         $messages = [
+            'title.string' => 'El título del evento debe ser una cadena de texto.',
+            'title.max' => 'El título del evento no puede exceder los 250 caracteres.',
+
             'cover_image.image' => 'El archivo de imagen de portada debe ser una imagen válida.',
             'cover_image.mimes' => 'Los formatos admitidos para la imagen de portada son .jpg, .jpeg y .png',
             'cover_image.max' => 'La imagen de portada es demasiado pesada, el tamaño máximo permitido es de 5 MB.',
@@ -499,9 +534,19 @@ class EventController extends Controller
             'program.file' => 'El archivo del programa debe ser un archivo válido.',
             'program.mimes' => 'El formato admitido para el programa es PDF.',
             'program.max' => 'El archivo del programa es demasiado pesado, el tamaño máximo permitido es de 5 MB.',
+
+            'contact_email.email' => 'Por favor, ingresa una dirección de correo electrónico válida.',
+
+            'website.url' => 'Por favor, ingresa una URL válida para el sitio web.',
         ];
 
         $validatedData = $request->validate($rules, $messages);
+
+        // en caso de recibir un nuevo banner, se elimina el anterior y se agrega el nuevo
+        if(isset($request->title)&&$request->title!=null) {
+            // Guardar el nuevo título
+            $event->title = $request->title;            
+        }
 
         // en caso de recibir un nuevo banner, se elimina el anterior y se agrega el nuevo
         if(isset($request->cover_image)&&$request->cover_image!=null) {
@@ -540,9 +585,20 @@ class EventController extends Controller
                 $event->program = 'program_files/' . $programName;
             }
         }
+
+        // En caso de existir, se guarda o actualiza el correo de contacto
+        $event->contact_email = $request->filled('contact_email') ? $request->input('contact_email') : null;
+
+        // En caso de existir, se guarda o actualiza el sitio web
+        $event->website = $request->filled('website') ? $request->input('website') : null;
         
         if($event->save()) {
-            return redirect()->route('events.participants.update',$event->id)->with('success','Información del evento actualizada correctamente');
+            // En caso de que se haya elegido el uso de un espacio físico, se envía a la pantalla para uso de recursos de dicho espacio
+            if($event->space_required==1) {
+                return redirect()->route('event.selectResources',$event->id)->with('success','Información del evento actualizada correctamente');
+            } else {
+                return redirect()->route('events.participants.update',$event->id)->with('success','Información del evento actualizada correctamente');
+            }
         } else {
             return redirect()->route('dashboard')->with('error','No se pudo actualizar el evento, inténtelo nuevamente.');
         }        
@@ -843,6 +899,19 @@ class EventController extends Controller
     }
 
     public function preCancel(Event $event) {
+        // Validaciones del movimiento
+        if ($event->cancelled || $event->status !== 'finalizado') {
+            return redirect()->route('dashboard')->with('error', 'Acceso ilegal, no se puede cancelar el evento');
+        }
+        if(!$this->validaMovimientoDepartamento($event)) {
+            return redirect()->route('events.byArea')->with('error','Usted no puede realizar movimientos de otro departamento/area.');
+        }
+
+        // No se puede cancelar un evento expirado
+        if($this->getEventExpired($event)) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está expiró, no puede cancelarse.');
+        }
+
         return view('events.precancel',compact('event'));
     }
 
@@ -856,21 +925,34 @@ class EventController extends Controller
             'justify.max' => 'El motivo de la cancelación no debe superar los 2000 caracteres.',
         ]);
 
-        $event = Event::find($event->id); // Asegúrate de reemplazar esto con la forma correcta de obtener tu evento.
-        $user=Auth::user();
+        // Validaciones del movimiento
         if ($event->cancelled || $event->status !== 'finalizado') {
             return redirect()->route('dashboard')->with('error', 'Acceso ilegal, no se puede cancelar el evento');
         }
+        if(!$this->validaMovimientoDepartamento($event)) {
+            return redirect()->route('events.byArea')->with('error','Usted no puede realizar movimientos de otro departamento/area.');
+        }
+        // No se puede cancelar un evento expirado
+        if($this->getEventExpired($event)) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está expiró, no puede cancelarse.');
+        }
 
+        // Cancelación del evento
+        $user=Auth::user();
         CanceledEvent::create([
             'event_id' => $event->id,
             'cancellation_reason' => $request->justify,
             'canceled_by_user_id' => $user->id,
         ]);
 
+        // Actualización de cancelación en la tabla Eventos
         $event->update([
             'cancelled' => 1,
         ]);
+
+        // Notificación de cancelación de evento a responsable y al departamento organizador
+        $recipients = $this->getRecipients($event); // Obtén los destinatarios para la notificación
+        Mail::to($recipients)->send(new CancelEventMail($event, $request->justify)); // Envia la notificación de cancelación a los destinatarios
         
         return redirect()->route('dashboard')->with('success','Se ha cancelado el evento correctamente');
     }
@@ -909,5 +991,151 @@ class EventController extends Controller
             }
         }
         return view('events.by_day',compact('events'));
+    }
+
+    public function selectResources(Event $event) {
+        // Condición para validar evento activo y sin publicar
+        if(!$this->validaEspacioActivo($event)) {
+            return redirect()->route('dashboard')->with('error','No se pueden registrar requisitos a este evento');
+        };        
+
+        // Solo un gestor de eventos del departamento solicitante puede agregar los requisitos 
+        if($this->validaMovimientoDepartamento($event)==false) {
+            return redirect()->route('dashboard')->with('error','No puede registrar requisitos a un evento de otra área');
+        }
+
+        // Obtención de lista de recursos ya reservados y disponibles para el evento
+        $reservedResources=$this->getReservedResources($event);
+        $availableResources=$this->getAvailableResources($event);
+
+        return view('events.select-resources', compact('event', 'reservedResources', 'availableResources'));
+    }
+
+    public function addResource(Event $event, Resource $resource) {
+        // valida que el espacio está disponible
+        if(!$this->validaEspacioActivo($event)) {
+            return redirect()->route('dashboard')->with('error','No se pueden registrar requisitos a este evento');
+        };
+
+        // Solo un gestor de eventos del departamento solicitante puede agregar los requisitos 
+        if($this->validaMovimientoDepartamento($event)==false) {
+            return redirect()->route('dashboard')->with('error','No puede registrar requisitos a un evento de otra área');
+        }
+
+        // Pasado los filtros, se agrega el préstamo del recurso para el evento solicitado
+        $eventResource=new EventResource();
+        $eventResource->event_id=$event->id;
+        $eventResource->resource_id=$resource->id;
+        $savedResource=$eventResource->save();
+
+        /// Obtención de lista de recursos ya reservados y disponibles para el evento
+        $reservedResources=$this->getReservedResources($event);
+        $availableResources=$this->getAvailableResources($event);
+
+        // Regresando la colección de elementos para su uso en la vista
+        $reservedResources = EventResource::where('event_id', $event->id)->get();
+
+        if($savedResource) {
+            return view('events.select-resources', compact('event', 'reservedResources', 'availableResources'))->with('success','Recurso solicitado correctamente.');
+        } else {
+            return view('events.select-resources', compact('event', 'reservedResources', 'availableResources'))->with('error','No se pudo solicitar el recurso.');
+        }
+    }
+
+    public function removeResource($reservedResource, Event $event) {
+        // Encuentra y elimina la tupla correspondiente en la tabla event_resources
+        $removeResource=EventResource::find($reservedResource)->delete();
+
+        // Obtención de lista de recursos ya reservados y disponibles para el evento
+        $reservedResources=$this->getReservedResources($event);
+        $availableResources=$this->getAvailableResources($event);
+
+        if($removeResource) {
+            return view('events.select-resources', compact('event', 'reservedResources', 'availableResources'))->with('success','Recurso eliminado correctamente.');
+        } else {
+            return view('events.select-resources', compact('event', 'reservedResources', 'availableResources'))->with('error','No se pudo eliminar el recurso.');
+        }
+    }
+
+    private function getReservedResources (Event $event) {
+        $reservedResources = EventResource::where('event_id', $event->id)->get();
+        return $reservedResources;
+    }
+
+    private function getAvailableResources (Event $event) {
+        // Obtener recursos reservados para el evento, se convierte en Array para identificar los elementos disponibles
+        $reservedResources = EventResource::where('event_id', $event->id)
+            ->pluck('resource_id')
+            ->toArray();
+
+        // Obtener recursos no reservados para el evento
+        $availableResources = [];
+        foreach ($event->department->resources as $resource) {
+            // Se limita a solo los recursos activos
+            if ($resource->active) {
+                if (!in_array($resource->id, $reservedResources)) {
+                    $availableResources[] = $resource;
+                }
+            }                
+        }
+        return $availableResources;
+    }
+
+    // Validación de que un evento tiene que estar activo y sin publicar para poder agregar los recursos
+    private function validaEspacioActivo(Event $event) {
+        $valido=true;
+        if($event->status=="finalizado"||$event->cancelled==1) {
+            $valido= false;
+        }
+
+        // Si el préstamo de espacio le fue rechazado, se redirige al dashboard
+        if($event->space_required==1&&$valido) {
+            foreach($event->eventSpaces as $eventspace) {
+                if($eventspace->status=="rechazado") {
+                    $valido= false;
+                }
+            }
+        }
+        return $valido;
+    }
+    
+    // Este método valida que un usuario realice el movimiento de un área o departamento que le corresponda
+    private function validaMovimientoDepartamento(Event $event) {
+        $user=Auth::user();
+        if($user->team!=null&&$user->team->department_id!=$event->department_id) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    // Obtener la lista de Responsables y Equipo de trabajo del departamento involucrado en un evento
+    private function getRecipients(Event $event) {
+        $recipients = [
+            $event->responsible->email,
+            $event->coresponsible->email,
+        ];
+    
+        $teamEmails=[];
+        $spaces=$event->spaces;
+        foreach($spaces as $space) {
+            $idDepartment=$space->department->id;
+            $teamUsers=Team::where('department_id',$idDepartment)->get();
+            foreach($teamUsers as $teamUser) {
+                $userMail=User::find($teamUser->user_id);
+                $teamEmails[] = $userMail->email;
+            }
+        }        
+    
+        return array_merge($recipients, $teamEmails);
+    }
+
+    // Valida si un evento ya expiró
+    private function getEventExpired(Event $event) {
+        $expired=false;
+        if($event->start_date<=now()) {
+            $expired=true;
+        }
+        return $expired;
     }
 }

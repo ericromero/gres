@@ -13,32 +13,47 @@
     <div class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 max-w-7xl mx-auto sm:px-6 lg:px-8 overflow-hidden shadow-sm sm:rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Contenedor con la información del curso a cancelar -->
         <div class="border border-gray-700 dark:border-gray-100 bg-white dark:bg-gray-800 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4">
-            <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-40 object-cover">
-            <div class="p-4">
+            <!-- Título de evento -->
+            <div class="ml-d text-center">                            
                 <h2 class="text-xl font-semibold mb-2">{{ $event->title }}</h2>
-                <p class="text-gray-500 mb-2">{{ $event->summary }}</p>
-                <p><strong>Responsable:</strong> {{ $event->responsible->name }}</p>
-                <p><strong>Fecha:</strong> {{ $event->start_date }}
-                @if($event->start_date!=$event->end_date)
-                    - {{ $event->end_date }}
+            </div>
+
+            <!-- Imagen del evento en minuatura -->
+            <div class="ml-4">
+                @if ($event->cover_image == null)                            
+                    <img src="{{ asset('images/unam.png') }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover dark:bg-slate-300">
+                @else
+                    <img src="{{ asset($event->cover_image) }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover dark:bg-slate-300 cursor-pointer" onclick="window.open('{{ asset($event->cover_image) }}')">
                 @endif
-                </p>
-                <p><strong>Horario:</strong> {{ $event->start_time }} - {{ $event->end_time }}</p>
-                <p><strong>Lugar:</strong>
-                    @foreach($event->spaces as $event_space)
-                        {{$event_space->name}} ({{$event_space->location}})<br>
-                    @endforeach
-                </p>foreach
-                </p>
+            </div>
+
+            <!-- Sección de información-->
+            <div class="p-4">
+                <p><strong>Departamento solicitante:</strong>  {{$event->department->name}}</p>
+                <p><strong>Persona responable del event:</strong> {{ $event->responsible->name }} <a href="mailto:{{ $event->responsible->email }}" class="text-blue-800 dark:text-blue-200"> {{ $event->responsible->email }}</a></p>
+                <p><strong>Fecha:</strong> Del {{ $event->start_date }} al {{ $event->end_date }}</p>
+                <p><strong>Horario:</strong> De {{ $event->start_time }} a {{ $event->end_time }}</p>
                 
                 @if ($event->registration_url!=null)
                     <p><strong>Registro:</strong> {{ $event->registration_url }}</p>
                 @else
-                    <p><strong>Registro:</strong>No se requiere</p>
+                    <p><strong>Registro:</strong> No se requiere</p>
                 @endif
 
-                @if ($event->program)
-                    <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 underline" download>Descargar Programa</a></p>
+                <p><strong>Espacio solicitado:</strong>
+                @if ($event->space_required)
+                    @foreach($event->spaces as $eventspace)
+                        {{$eventspace->name}} ({{$eventspace->location}})
+                    @endforeach
+                @else
+                    No se requiere espacio
+                @endif
+                </p>
+                
+                @if($event->cancelled==1)
+                    <div>
+                        <strong>Motivo de cancelación:</strong> {{ $event->canceledEvent->cancellation_reason }}
+                    </div>
                 @endif
             </div>
         </div>
@@ -62,6 +77,11 @@
             </form>
         </div>
     </div>
+
+    <div class="ml-10 my-4">
+        <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md">Regresar</a>
+    </div>
+
 </x-app-layout>
 
 <script>
