@@ -76,8 +76,8 @@
                 @hasanyrole('Coordinador')
                     <a href="{{ route('spaces.my-spaces') }}">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 cursor-pointer border border-gray-700 dark:border-gray-400">
-                            <img src="{{ asset('images/espacios.png') }}" alt="Mis espacios" class="mx-auto h-20">
-                            <p class="text-center mt-2 text-gray-900 dark:text-gray-100">Mis espacios</p>
+                            <img src="{{ asset('images/espacios.png') }}" alt="Mis espacios y recursos" class="mx-auto h-20">
+                            <p class="text-center mt-2 text-gray-900 dark:text-gray-100">Mis espacios y recursos</p>
                         </div>
                     </a>
                 @endhasrole

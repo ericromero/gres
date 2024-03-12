@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Resource;
 
 class SpaceController extends Controller
 {
@@ -132,23 +133,33 @@ class SpaceController extends Controller
         return view('spaces.index', compact('spaces'));
     }
 
-    public function my_spaces() {
+    public function my_spaces() {        
         // Obtener el usuario actualmente autenticado (coordinador)
         $coordinator = Auth::user();
 
         // Obtener el departamento coordinado por el usuario
         $coordinatedDepartment = $coordinator->coordinatedDepartment;
 
+        // Variable para almacenar los recursos del
+        $resources=null;
+
         // Verificar si el usuario es responsable de algún departamento
         if ($coordinatedDepartment) {
             // Obtener los espacios correspondientes al departamento coordinado
             $spaces = $coordinatedDepartment->spaces;
+
+            // Obtener los recursos del departamento en cuestión            
+            foreach($spaces as $space) {
+                $resources=Resource::where('department_id',$space->department_id)
+                ->orderBy('name','asc')
+                ->get();
+            }            
         } else {
             // Si el usuario no es responsable de ningún departamento, inicializar una colección vacía
             $spaces = collect();
         }
 
-        return view('spaces.mis-espacios', compact('spaces','coordinatedDepartment'));
+        return view('spaces.mis-espacios', compact('spaces','coordinatedDepartment','resources'));
     }
 
     public function create()
@@ -268,6 +279,11 @@ class SpaceController extends Controller
             ->unique();
     
         return $spacesInOverlappingEvents;
+    }
+
+    private function getResources($department_id) {
+        $department=Department::find($department_id);
+        return $department->resources;
     }
 
 }

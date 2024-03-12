@@ -26,5 +26,14 @@ class ResourceController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'No se pudo desactivar el recurso. Inténtelo nuevamente.');
         }
-}
+    }
+
+    public function toggleStatusFromCoordinator(Resource $resource) {
+        $statusActive=!$resource->active;
+        $resource->active=$statusActive;
+        $resource->save();
+        $department=Department::find($resource->department_id);
+        return redirect()->route('spaces.my-spaces');
+    }
+    
 }
