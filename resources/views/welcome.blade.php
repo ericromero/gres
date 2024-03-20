@@ -22,60 +22,32 @@
                 <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
 
                     {{-- Inicia el ciclo para publicar todos los eventos --}}
-<<<<<<< HEAD
-                    @foreach ($events as $event)
-                        <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4" style="min-width: 200px; max-width: 400px;min-height: 350px; y max-height: 500px;">
-                            @if($event->cancelled == 1)
-                                <div class="bg-red-700 text-slate-200 dark:bg-red-300 dark:text-slate-700 text-center font-bold">EVENTO CANCELADO</div>
-                            @endif
-                            {{-- <h2 class="text-xl font-semibold p-4">{{ $event->title }}</h2> --}}
-                            <div class="relative" style="min-height: 300px; max-height: 500px;min-height: 350px; y max-height: 500px;">
-                                <a href="{{ route('events.show', ['event' => $event]) }}">
-                                    @php
-                                        $imageBackground='images/unam.png';
-                                        if($event->cover_image!=null) {
-                                            $imageBackground=$event->cover_image;
-                                        }
-                                    @endphp
-                                    <div class="absolute inset-0 bg-cover bg-center hover:bg-opacity-80 transition duration-300" style="background-image: url('{{asset($imageBackground)}}');">
-                                    </div>
-                                </a>
-                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                                    {{-- <p class="text-sm"><strong>Fecha:</strong> {{ $event->start_date }}
-                                        @if($event->start_date!=$event->end_date)
-                                        - {{ $event->end_date }}
-                                        @endif
-                                    </p>
-                                    <p class="text-sm"><strong>Horario:</strong> {{ $event->start_time }} - {{ $event->end_time }}</p> --}}
-                                    <p class="text-sm">{{ $event->date_time_text }}</p>
-=======
                     
->>>>>>> 09badca32ff4f73d5a822b336a1ff4970bacc322
 
                     @foreach ($events as $event)
-    <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} relative dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4" style="min-height: 350px; max-height: 500px;">
-        @if($event->cancelled == 1)
-            <div class="text-red-700 text-center font-bold">EVENTO CANCELADO</div>
-        @endif
+                        <div class="{{ $event->cancelled == 1 ? 'bg-red-50' : 'bg-white' }} relative dark:bg-gray-800 border border-gray-700 dark:border-gray-100 overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4" style="min-height: 350px; max-height: 500px;">
+                            @if($event->cancelled == 1)
+                                <div class="text-red-700 text-center font-bold">EVENTO CANCELADO</div>
+                            @endif
 
-        <div>
-            <a href="{{ route('events.show', ['event' => $event]) }}">
-                <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-full object-cover rounded-t-lg">
-            </a>            
-        </div>
+                            <div>
+                                <a href="{{ route('events.show', ['event' => $event]) }}">
+                                    <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-full h-full object-cover rounded-t-lg">
+                                </a>            
+                            </div>
 
-        <div class="absolute bottom-0 left-0 bg-gray-700 opacity-80 text-white w-full p-4">
-            <p class="text-sm">{{ $event->date_time_text }}</p>                               
+                            <div class="absolute bottom-0 left-0 bg-gray-700 opacity-80 text-white w-full p-4">
+                                <p class="text-sm">{{ $event->date_time_text }}</p>                               
 
-            @if ($event->registration_url != null)
-                <p class="text-sm"><strong>Registro:</strong> {{ $event->registration_url }}</p>
-            @else
-                <p class="text-sm">Entrada libre.</p>
-            @endif
-        </div>
+                                @if ($event->registration_url != null)
+                                    <p class="text-sm"><strong>Registro:</strong> {{ $event->registration_url }}</p>
+                                @else
+                                    <p class="text-sm">Entrada libre.</p>
+                                @endif
+                            </div>
 
-    </div>
-@endforeach
+                        </div>
+                    @endforeach
                 
                 </div>
             @endif
