@@ -17,10 +17,14 @@
 
     <div class="max-w-7xl mx-auto pt-2 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
         <!-- Primera columna: Cartel del evento -->        
-        <div class="p-6 m-2 border {{ $event->cancelled=='1'? 'border-red-800 dark:border-red-300':'border-gray-700 dark:border-gray-300' }}">
+        <div class="p-2 m-2 border {{ $event->cancelled=='1'? 'border-red-800 dark:border-red-300':'border-gray-700 dark:border-gray-300' }}">
             @if ($event->cancelled=='1')
-                <h2 class="font-bold text-red-700 dark:text-red-300 text-center text-xl mb-2">¡EVENTO CANCELADO!</h2>
+                <h2 class="font-bold bg-red-700 text-slate-200 dark:bg-red-300 dark:text-slate-700 text-center text-xl mb-2">¡EVENTO CANCELADO!</h2>
             @endif
+
+            <div>
+                <h2 class="text-2xl font-bold text-center m-2">{{ $event->title }}</h2>
+            </div>
 
             @if ($event->cover_image==null)
                 <img src="{{ asset('images/unam.png') }}" alt="No se ha subido el cartel" class="w-full object-cover dark:bg-slate-300">
@@ -31,13 +35,16 @@
                     <a href="{{ asset($event->cover_image) }}" target="_blank" class="text-blue-500 dark:text-blue-300">Abrir en ventana nueva</a>
                 </div>
             @endif
+            <div>
+                <p><strong>Resumen</strong></p>
+                <p>{{ $event->summary }}</p>
+            </div>
         </div>
             
         <!-- Segunda columna: Información del evento-->
         <div class="p-6 m-2 border {{ $event->cancelled=='1'? 'border-red-800 dark:border-red-300':'border-gray-700 dark:border-gray-300' }}">
             <div>
-                <h2 class="text-2xl font-semibold">Resumen:</h2>
-                <p>{{ $event->summary }}</p>
+                <h2 class="text-lg font-semibold">Información general:</h2>
             </div>
 
             <div class="mt-4">
@@ -57,7 +64,7 @@
 
             @if ($event->program)
                 <div class="mt-4">
-                    <h3 class="text-lg font-semibold">Programa:</h3>
+                    <h2 class="text-lg font-semibold">Programa:</h2>
                     <a href="{{ asset($event->program) }}" class="text-blue-600 hover:underline dark:text-blue-300" download>Descargar Programa</a>
                 </div>
             @endif                                    
@@ -87,40 +94,62 @@
                     <h2 class="text-lg font-semibold">Sitio web del evento:</h2>
                     <p><a class="text-blue-900 dark:text-blue-300" href="{{$event->website }}" target="_blank">{{ $event->website }}</a></p>
                 </div>
+            @endif
+
+            @if ($event->requirements)
+                <div class="mt-4">
+                    <h2 class="text-lg font-semibold">Requisitos adicionales:</h2>
+                    <p>{{ $event->requirements }}</p>
+                </div>
             @endif 
 
         </div>
         
         
-        <!-- Lista de participantes -->
+        <!-- Recursos solicitados y Lista de participantes -->
         <div class="p-6 m-2 border {{ $event->cancelled=='1'? 'border-red-800 dark:border-red-300':'border-gray-700 dark:border-gray-300' }}">
-            <h3 class="text-lg font-semibold">Participantes</h3>
-            @if ($participants!=null&&$participants->count() > 0)
-                <table class="border border-gray-700 dark:border-gray-300">
-                    <thead class="bg-gray-300 dark:bg-gray-700">
-                        <tr>
-                            <th class="px-4 py-2">Nombre completo</th>
-                            <th class="px-4 py-2">Tipo de participación</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($participants as $participant)
+            <!-- Lista de recursos -->
+            <div class="m-2">
+                <h3 class="text-lg font-semibold">Recursos/equipo solicitados</h3>
+                @if($event->resources->isNotEmpty())
+                                <ul>
+                                    @foreach ($event->resources as $resource)
+                                        <li class="ml-2">- {{ $resource->name }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+            </div>
+            <!-- Lista de participantes -->
+            <div class="m-2">
+                <h3 class="text-lg font-semibold">Participantes</h3>
+                @if ($participants!=null&&$participants->count() > 0)
+                    <table class="border border-gray-700 dark:border-gray-300">
+                        <thead class="bg-gray-300 dark:bg-gray-700">
                             <tr>
-                                <td class="px-4 py-2">
-                                    @if($participant->user_id!=null)
-                                        {{ $participant->user->degree }}
-                                    @endif 
-                                    {{ $participant->fullname }}
-                                </td>
-                                <td class="px-4 py-2">{{ $participant->participationType->name }}</td>
-                                
+                                <th class="px-4 py-2">Nombre completo</th>
+                                <th class="px-4 py-2">Tipo de participación</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <p>No hay participantes agregados al evento.</p>
-            @endif
+                        </thead>
+                        <tbody>
+                            @foreach ($participants as $participant)
+                                <tr>
+                                    <td class="px-4 py-2">
+                                        @if($participant->user_id!=null)
+                                            {{ $participant->user->degree }}
+                                        @endif 
+                                        {{ $participant->fullname }}
+                                    </td>
+                                    <td class="px-4 py-2">{{ $participant->participationType->name }}</td>
+                                    
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p>No hay participantes agregados al evento.</p>
+                @endif
+            </div>
+            
         </div>
     </div>
 

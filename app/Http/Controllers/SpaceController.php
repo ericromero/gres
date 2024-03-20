@@ -134,11 +134,15 @@ class SpaceController extends Controller
     }
 
     public function my_spaces() {        
-        // Obtener el usuario actualmente autenticado (coordinador)
+        // Obtener el usuario actualmente autenticado (coordinador o gestor de espacios)
         $coordinator = Auth::user();
 
+        // Obtenemos el departamento del usuario con base en su equipo de trabajo
+        $coordinatedDepartment=Department::find($coordinator->team->department_id);
+        
+
         // Obtener el departamento coordinado por el usuario
-        $coordinatedDepartment = $coordinator->coordinatedDepartment;
+        //$coordinatedDepartment = $coordinator->coordinatedDepartment;
 
         // Variable para almacenar los recursos del
         $resources=null;

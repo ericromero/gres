@@ -73,7 +73,7 @@
                 @endhasrole
 
                 <!-- Imagen y enlace para consultar espacios -->
-                @hasanyrole('Coordinador')
+                @hasanyrole('Coordinador|Gestor de espacios')
                     <a href="{{ route('spaces.my-spaces') }}">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 cursor-pointer border border-gray-700 dark:border-gray-400">
                             <img src="{{ asset('images/espacios.png') }}" alt="Mis espacios y recursos" class="mx-auto h-20">

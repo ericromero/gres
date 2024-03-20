@@ -33,8 +33,14 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     //Ruta para acceder a la creación de eventos
     Route::get('/evento/registro/{event}', [EventController::class,'register'])->name('events.register');
 
-    //Ruta para acceder a la creación de eventos
+    // Lista los eventos generados por el área
     Route::get('/eventos/area', [EventController::class,'by_area'])->name('events.byArea');
+
+    // Lista los eventos generados por el área aplicando filtro
+    Route::post('/eventos/area/filtred', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
+    
+    // Lista los eventos generados por el área aplicando filtro
+    Route::get('/eventos/area/filtred', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
 
     // Eventos del área que se encuentran en estatus de borrador
     Route::get('/eventos/area/borrador',[EventController::class,'by_area_drafts'])->name('events.byArea.drafts');
@@ -71,7 +77,7 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
 
     // Quitar al recurso de la reserva del espacio
     Route::get('/events/quitar/recurso/{reservedResource}/{event}', [EventController::class, 'removeResource'])->name('event.removeResource');
-    
+
 });
 
 

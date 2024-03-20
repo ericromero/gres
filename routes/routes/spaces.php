@@ -13,7 +13,7 @@ Route::middleware(['role:Administrador|Coordinador|Gestor de eventos'])->group(f
         Route::post('/buscador_de_espacios', [SpaceController::class,'search'])->name('spaces.search');
 });
 
-Route::middleware(['role:Coordinador'])->group(function () {
+Route::middleware(['role:Coordinador|Gestor de espacios'])->group(function () {
     // Ruta para mostrar la lista de espacios
     Route::get('/mis_espacios', [SpaceController::class, 'my_spaces'])->name('spaces.my-spaces');
 });

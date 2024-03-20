@@ -3,14 +3,14 @@
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Eventos de la División/Coordinación') }}
         </h2>
-        <div class="mb-2 text-gray-800 dark:text-gray-200 ">
+        <div class="text-gray-800 dark:text-gray-200 ">
             <p>Si el evento requiere el uso de un espacio físico, podrá publicarlo hasta que este confirmado el uso del espacio.</p>
             <p>Puede actualizar la información de un evento siempre y cuando aún no esté publicado.</p>
             <p>Una vez que el evento es publicado, aparecerá en la Cartelera y no podrá ser modificado</p>
         </div>
     </x-slot>
 
-    <div class="py-2 max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
 
         {{-- Código para el manejo de notificaciones --}}
         @if(session('success'))
@@ -23,10 +23,47 @@
             </div>
         @endif
 
+        <!-- Contenedor de filtros -->
+        <div class="my-2">
+            <button id="toggleFiltersBtn" class="bg-orange-500 px-4 py-2 text-white rounded">Filtros</button>
+            <div id="filtersContainer" style="display: none;">
+                <form action="{{ route('events.byArea.filter') }}" method="POST">
+                    @csrf
+                    <!-- Bloque de ordenamiento -->
+                    <div>
+                        <label for="orderBy">Ordenar por:</label>
+                        <select name="orderBy" id="orderBy">
+                            <option value="title">Título</option>
+                            <option value="start_date">Fecha</option>
+                        </select>
+                        <select name="orderByType" id="orderBy">
+                            <option value="asc">Ascendente</option>
+                            <option value="desc">Descendente</option>
+                        </select>
+                    </div>
+
+                    <!-- Bloque de filtrado por campo -->
+                    <div class="p-2">
+                        <label for="searchByField">Búsqueda por campo:</label>
+                        <select name="searchByField" id="searchByField">
+                            <option value="title">Título</option>
+                            <option value="summary">Resumen</option>
+                        </select>
+                        
+                        <input type="text" name="searchBy" id="searchBy">
+                    </div>
+
+                    <div>
+                        <button type="submit" class="bg-blue-500 px-4 py-2 text-white rounded">Aplicar filtros</button>
+                        <a href="{{ route('events.byArea') }}" class="bg-red-500 px-4 py-2 text-white rounded">Borrar filtros</a>
+                    </div>
+                </form>
+            </div>
+        </div>
         
 
         <!-- Lista de eventos del area -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @if (!empty($events) && count($events) > 0)
                 @foreach ($events as $event)
 
@@ -43,20 +80,20 @@
                         }
                     @endphp
 
-                    <!-- Cotenedor de un solo evento -->
+                    <!-- Contenedor de un solo evento -->
                     <div class="overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4 border border-gray-700 dark:bg-gray-800 dark:text-gray-100
                         @if ($event->status === 'borrador')
-                            bg-red-50 dark:border-red-300 
+                            border-red-700 dark:border-red-300 
                         @elseif($rechazado)
-                            bg-pink-50 dark:border-pink-300 
+                            border-pink-700 dark:border-pink-300 
                         @elseif ($event->status === 'solicitado')
-                            bg-yellow-50  dark:border-yellow-300            
+                            border-yellow-700  dark:border-yellow-300            
                         @elseif($event->cancelled==1)
-                            bg-pink-50 dark:border-pink-300 
+                            border-pink-700 dark:border-pink-300 
                         @elseif($event->status === 'finalizado'&&$event->published===0)
-                            bg-blue-50 dark:border-blue-300          
+                            border-blue-700 dark:border-blue-300          
                         @elseif ( $event->published === 1)
-                            bg-green-50 dark:border-green-300
+                            border-green-700 dark:border-green-300
                         @else
                             dark:text-gray-900
                         @endif
@@ -64,27 +101,27 @@
                         
 
                         @if ($event->status === 'borrador')
-                            <div class="text-center text-red-700 dark:text-red-200 font-bold">
+                            <div class="text-center text-slate-100 dark:text-slate-700 bg-red-700 dark:bg-red-200 font-bold">
                                 REGISTRO EN BORRADOR
                             </div>
                         @elseif($event->status === 'solicitado')
-                            <div class="text-center text-yellow-700 dark:text-yellow-200 font-bold">
+                            <div class="text-center text-slate-100 dark:text-slate-700 bg-yellow-600 dark:bg-yellow-200 font-bold">
                                 ESPERANDO PRESTAMO DE ESPACIO
                             </div>
                         @elseif($rechazado)
-                            <div class="text-center text-pink-700 dark:text-pink-200 font-bold">
+                            <div class="text-center text-slate-100 dark:text-slate-700 bg-pink-700 dark:bg-pink-200 font-bold">
                                 SIN PRESTAMO DE ESPACIO
                             </div>
                         @elseif($event->cancelled==1)
-                            <div class="text-center text-pink-700 dark:text-pink-200 font-bold">
+                            <div class="text-center text-slate-100 dark:text-slate-700 bg-red-700 dark:bg-pink-200 font-bold">
                                 EVENTO CANCELADO
                             </div>
                         @elseif($event->status === 'finalizado'&&$event->published===0)
-                            <div class="text-center text-blue-700 dark:text-blue-200 font-bold">
+                            <div class="text-center text-slate-100 dark:text-slate-700 bg-blue-700 dark:bg-blue-200 font-bold">
                                 EVENTO SIN PUBLICAR
                             </div>
                         @elseif($event->published===1)
-                            <div class="text-center text-green-700 dark:text-green-200 font-bold">
+                            <div class="text-center text-slate-100 dark:text-slate-700 bg-green-700 dark:bg-green-200 font-bold">
                                 ¡EVENTO PUBLICADO!
                             </div>
                         @endif
@@ -120,6 +157,31 @@
                              <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 underline" download>Descargar Programa</a></p>
                             @endif --}}
 
+                            <!-- Información de contacto -->
+                            @if ($event->contact_email!=null)
+                                <p><strong>Correo electrónico de contacto:</strong><a href="mailto:{{ $event->contact_email }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->contact_email }}</a></p>
+                            @endif
+
+                            <!-- Sitio web sobre el evento -->
+                            @if ($event->website!=null)
+                                <p><strong>Sitio web del evento:</strong><a href="{{ $event->website }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->website }}</a></p>
+                            @endif
+
+                            <!-- Requisitos adicionales-->
+                            @if ($event->requirements!=null)
+                                <p><strong>Requisitos para el evento:</strong> {{ $event->requirements }}</p>
+                            @endif
+
+                            <!-- Verificación del uso de recursos -->
+                            @if($event->resources->isNotEmpty())
+                                <p><strong>Recursos/equipo solicitados:</strong></p>
+                                <ul>
+                                    @foreach ($event->resources as $resource)
+                                        <li class="ml-2">- {{ $resource->name }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
                             <p><strong>Espacio solicitado:</strong></p>
                             @if ($event->space_required)
                                 @foreach($event->spaces as $eventspace)
@@ -128,13 +190,15 @@
                                     @php
                                         $eventSpaceStatus = $eventspace->pivot->status;
                                     @endphp
-                                    @if ($eventSpaceStatus == "solicitado"&&$event->status!="borrador")
-                                        <p>Por favor espere mientras la(el) {{ $eventspace->department->name }} atiende su solicitud.</p>
-                                    @elseif($eventSpaceStatus == "rechazado"&&$event->status!="borrador")
-                                        <p><strong>Espacio rechazado:</strong> {{ $eventspace->pivot->observation }}</p>
-                                    @elseif($eventSpaceStatus == "aceptado"&&$event->published==0)
-                                        <p>Ahora puede publicar su evento dando clic en Publicar evento.</p>
+                                    <p class="border border-gray-700 p-2 mt-2">
+                                        @if ($eventSpaceStatus == "solicitado"&&$event->status!="borrador")
+                                            Por favor espere mientras la(el) {{ $eventspace->department->name }} atiende su solicitud.
+                                        @elseif($eventSpaceStatus == "rechazado"&&$event->status!="borrador")
+                                            <strong>Espacio rechazado:</strong> {{ $eventspace->pivot->observation }}
+                                        @elseif($eventSpaceStatus == "aceptado"&&$event->published==0)
+                                            Ahora puede publicar su evento dando clic en Publicar evento.
                                     @endif
+                                    </p>
                                 @endforeach
                             @else
                                 No se requiere espacio
@@ -145,6 +209,8 @@
                                     <strong>Motivo de cancelación:</strong> {{ $event->canceledEvent->cancellation_reason }}
                                 </div>
                             @endif
+
+                            
                         </div>
 
                         <!-- Botones de acción -->
@@ -247,3 +313,17 @@
     </div>
 </x-app-layout>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
+        const filtersContainer = document.getElementById('filtersContainer');
+
+        toggleFiltersBtn.addEventListener('click', function() {
+            if (filtersContainer.style.display === 'none') {
+                filtersContainer.style.display = 'block';
+            } else {
+                filtersContainer.style.display = 'none';
+            }
+        });
+    });
+</script>

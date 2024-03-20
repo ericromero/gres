@@ -33,9 +33,17 @@ use App\Models\EventResource;
 use App\Models\Resource;
 use App\Models\Team;
 use App\Mail\CancelEventMail;
+use Illuminate\Support\Facades\Validator;
 
 class EventController extends Controller
 {
+
+    public $diffusionEmails;
+    
+    public function __construct() {
+        $this->diffusionEmails = ['augarued@unam.mx', 'alejandramireles@psicologia.unam.mx', 'publicaciones.psicologia@unam.mx'];
+    }
+
     public function cartelera() {
         $now = Carbon::now();
     
@@ -456,7 +464,12 @@ class EventController extends Controller
 
         // En caso de que se haya elegido el uso de un espacio físico, se envía a la pantalla para uso de recursos de dicho espacio
         if($request->input('space')!=null) {
-            return redirect()->route('event.selectResources',$event->id);
+            // si área del espacio solicitado tiene recursos se envía a la selección de los mismos caso contrario a selección de participantes
+            if($this->isAvailableResources($event)) {
+                return redirect()->route('event.selectResources',$event->id)->with('success','Información del evento actualizada correctamente');
+            } else {
+                return redirect()->route('events.participants',$event->id)->with('success','Información del evento actualizada correctamente');
+            }
         }
 
         return redirect()->route('events.participants',$event->id);
@@ -568,23 +581,23 @@ class EventController extends Controller
         }
         
         // en caso de recibir un nuevo programa, se elimina el anterior y se agrega el nuevo
-        if(isset($request->program)&&$request->program!=null) {
-            // Eliminar el cartel o programa de portada si existe
-            if ($event->program) {
-                $programPath = public_path($event->program);
-                if (file_exists($programPath)) {
-                    unlink($programPath);
-                }
-            }
+        // if(isset($request->program)&&$request->program!=null) {
+        //     // Eliminar el cartel o programa de portada si existe
+        //     if ($event->program) {
+        //         $programPath = public_path($event->program);
+        //         if (file_exists($programPath)) {
+        //             unlink($programPath);
+        //         }
+        //     }
 
-            // Guardar el programa si está presente
-            if ($request->hasFile('program')) {
-                $programFile = $request->file('program');
-                $programName = time() . '_' . $programFile->getClientOriginalName();
-                $programFile->move(public_path('program_files'), $programName);
-                $event->program = 'program_files/' . $programName;
-            }
-        }
+        //     // Guardar el programa si está presente
+        //     if ($request->hasFile('program')) {
+        //         $programFile = $request->file('program');
+        //         $programName = time() . '_' . $programFile->getClientOriginalName();
+        //         $programFile->move(public_path('program_files'), $programName);
+        //         $event->program = 'program_files/' . $programName;
+        //     }
+        // }
 
         // En caso de existir, se guarda o actualiza el correo de contacto
         $event->contact_email = $request->filled('contact_email') ? $request->input('contact_email') : null;
@@ -595,7 +608,12 @@ class EventController extends Controller
         if($event->save()) {
             // En caso de que se haya elegido el uso de un espacio físico, se envía a la pantalla para uso de recursos de dicho espacio
             if($event->space_required==1) {
-                return redirect()->route('event.selectResources',$event->id)->with('success','Información del evento actualizada correctamente');
+                // si área del espacio solicitado tiene recursos se envía a la selección de los mismos caso contrario a selección de participantes
+                if($this->isAvailableResources($event)) {
+                    return redirect()->route('event.selectResources',$event->id)->with('success','Información del evento actualizada correctamente');
+                } else {
+                    return redirect()->route('events.participants.update',$event->id)->with('success','Información del evento actualizada correctamente');
+                }
             } else {
                 return redirect()->route('events.participants.update',$event->id)->with('success','Información del evento actualizada correctamente');
             }
@@ -648,8 +666,12 @@ class EventController extends Controller
         $user=Auth::user();
         $event = Event::findOrFail($id);
 
-        // Se verifica que el evento no tenga rechazado el prestamo de espacio para poder publicar
-        
+        // No se puede publicar un evento que no tenga cartel
+        if($event->cover_image==null) {
+            return redirect()->route('events.byArea')->with('error', 'No puede publicar el evento hasta que haya subido el cartel del mismo.');
+        }
+
+        // Se verifica que el evento no tenga rechazado el prestamo de espacio para poder publicar        
         $rechazado=false;
         if ($event->space_required) {
             foreach($event->spaces as $eventspace) {
@@ -725,14 +747,9 @@ class EventController extends Controller
             $event->status='finalizado';
         }
         $event->save();
-
-        // Notificación al gestor de espacio
-        if($event->space_required=='1') {
-            $eventSpace=EventSpace::where('event_id',$event->id)->first();
-            $space=Space::find($eventSpace->space_id);
-            $user=User::find($space->department->responsible_id);
-            Mail::to($user->email)->send(new RequestSpaceEmail($event, $space));            
-        }
+        
+        // Notificación al responsable y departamento responsable del evento
+        $this->notifyRegister($event);
 
         // Notificación al gestor de grabación
         // if($event->recording_required!=null&&$event->recording_required==1) {
@@ -748,8 +765,76 @@ class EventController extends Controller
     }
 
     public function by_area()
-    {        
+    {   
         $events=$this->eventsByDepartment();
+        return view('events.by-area', compact('events'));
+    }
+
+    public function by_area_filter(Request $request) {
+        // Definir reglas de validación
+        $rules = [
+            'orderBy' => 'required|string|in:title,start_date',
+            'orderByType' => 'required|string|in:asc,desc',
+            'searchByField' => 'required|string|in:title,summary',
+            'searchBy' => 'nullable|string|max:255',
+        ];
+
+        // Definir mensajes de error personalizados
+        $messages = [
+            'orderBy.required' => 'El campo Ordenar por es obligatorio.',
+            'orderBy.string' => 'El campo Ordenar por debe ser una cadena de texto.',
+            'orderBy.in' => 'El valor del campo Ordenar por es inválido.',
+            'orderByType.required' => 'El campo Tipo de orden es obligatorio.',
+            'orderByType.string' => 'El campo Tipo de orden debe ser una cadena de texto.',
+            'orderByType.in' => 'El valor del campo Tipo de orden es inválido.',
+            'searchByField.required' => 'El campo Búsqueda por campo es obligatorio.',
+            'searchByField.string' => 'El campo Búsqueda por campo debe ser una cadena de texto.',
+            'searchByField.in' => 'El valor del campo Búsqueda por campo es inválido.',
+            'searchBy.string' => 'El campo Búsqueda por debe ser una cadena de texto.',
+            'searchBy.max' => 'El campo Búsqueda por no debe exceder los :max caracteres.',
+        ];
+
+        // Validar la solicitud con las reglas y mensajes definidos
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+
+        // Verificar si la validación ha fallado
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Obtén el usuario autenticado
+        $user = Auth::user();
+    
+        // Obtén los IDs de los departamentos a los que el usuario está adscrito
+        $departmentIds = $user->adscriptions->pluck('department_id');
+    
+        // Obtén los eventos que pertenecen a los departamentos del usuario
+        $events = Event::whereIn('department_id', $departmentIds);
+    
+        // Aplicar filtros de ordenamiento si se han enviado
+        if ($request->has('orderBy')&&$request->has('orderByType')) {
+            $orderBy = $request->orderBy;
+            if (!empty($orderBy)) {
+                $events->orderBy($request->orderBy, $request->orderByType);
+            }
+        }
+
+        // Aplicar filtros por campo si los hay
+        if ($request->has('searchBy')&&$request->has('searchByField')) {
+            $searchBy = $request->searchBy;
+            if (!empty($searchBy)) {
+                $events->where($request->searchByField,'like', '%' . $request->searchBy . '%');
+            }
+        }
+    
+        // Paginar los resultados
+        $events = $events->paginate(8);
+    
+        // Mantener los parámetros de filtro en el paginador
+        $events->appends($request->except('page'));
+    
+        // Devolver la vista con los eventos
         return view('events.by-area', compact('events'));
     }
 
@@ -889,13 +974,40 @@ class EventController extends Controller
             ->pluck('email')
             ->toArray(); // Convertir la colección en una matriz
     
-        $diffusionEmails = ['augarued@unam.mx', 'alejandramireles@psicologia.unam.mx', 'publicaciones.psicologia@unam.mx'];
+        //$diffusionEmails = ['augarued@unam.mx', 'alejandramireles@psicologia.unam.mx', 'publicaciones.psicologia@unam.mx'];
     
         // Agregar los correos electrónicos de $areaEmails y $diffusionEmails a $emailList
-        $emailList = array_merge($emailList, $areaEmails, $diffusionEmails);
+        $emailList = array_merge($emailList, $areaEmails, $this->diffusionEmails);
     
         $mail = new NewEventMail($event,$emailList);
         Mail::to($responsible)->send($mail);
+    }
+
+    private function notifyRegister(Event $event) {
+
+        if($event->space_required=='1') {
+            $emailList = [];
+            // Notificaciones para anunciar que se ha publicado un nuevo evento
+            $responsible = User::find($event->responsible_id);
+
+            // Obtener el ID del departamento del usuario logueado
+            $user = Auth::user();
+            $userDepartmentId = $user->team->department_id;
+
+            // Obtener la lista de correos electrónicos de usuarios en el mismo departamento
+            $areaEmails = User::join('teams', 'users.id', '=', 'teams.user_id')
+                ->where('teams.department_id', $userDepartmentId)
+                ->pluck('email')
+                ->toArray(); // Convertir la colección en una matriz
+
+            
+            // Agregar los correos electrónicos de $areaEmails y $diffusionEmails a $emailList
+            $emailList = array_merge($emailList, $areaEmails, $this->diffusionEmails);
+            $eventSpace=EventSpace::where('event_id',$event->id)->first();
+            $space=Space::find($eventSpace->space_id);
+            $mail=new RequestSpaceEmail($event, $space,$emailList);
+            Mail::to($responsible)->send($mail);            
+        }
     }
 
     public function preCancel(Event $event) {
@@ -1070,13 +1182,16 @@ class EventController extends Controller
 
         // Obtener recursos no reservados para el evento
         $availableResources = [];
-        foreach ($event->department->resources as $resource) {
-            // Se limita a solo los recursos activos
-            if ($resource->active) {
-                if (!in_array($resource->id, $reservedResources)) {
-                    $availableResources[] = $resource;
-                }
-            }                
+        
+        // Se hace una iteración sobre todos los espacios que se pidió para el evento, y se buscan los recursos
+        foreach($event->spaces as $space) {
+            foreach($space->department->resources as $resource) {
+                if ($resource->active) {
+                    if (!in_array($resource->id, $reservedResources)) {
+                        $availableResources[] = $resource;
+                    }
+                } 
+            }
         }
         return $availableResources;
     }
@@ -1084,7 +1199,7 @@ class EventController extends Controller
     // Validación de que un evento tiene que estar activo y sin publicar para poder agregar los recursos
     private function validaEspacioActivo(Event $event) {
         $valido=true;
-        if($event->status=="finalizado"||$event->cancelled==1) {
+        if($event->published==1||$event->cancelled==1) {
             $valido= false;
         }
 
@@ -1137,5 +1252,18 @@ class EventController extends Controller
             $expired=true;
         }
         return $expired;
+    }
+
+    // Valida si el departamento del espacio solicitado gestiona recursos
+    private function isAvailableResources(Event $event) {
+        $available=false;
+        $spaces=$event->spaces;
+        foreach($spaces as $space) {
+            $resources = $space->department->resources;
+            if ($resources->isNotEmpty()) {
+                $available=true;
+            }                
+        }
+        return $available;
     }
 }

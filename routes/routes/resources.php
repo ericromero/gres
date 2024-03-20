@@ -11,7 +11,7 @@ Route::middleware(['role:Administrador'])->group(function () {
 
 });
 
-Route::middleware(['role:Administrador|Coordinador'])->group(function () {
+Route::middleware(['role:Administrador|Coordinador|Gestor de espacios'])->group(function () {
 
     Route::post('/recursos/status/coordinator/{resource}', [ResourceController::class,'toggleStatusFromCoordinator'])->name('resource.toggleStatusFromCoordinator');
 

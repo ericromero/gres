@@ -142,4 +142,9 @@ class Event extends Model
         return $this->hasMany(EventSpace::class, 'event_id');
     }
 
+    public function resources()
+    {
+        return $this->belongsToMany(Resource::class, 'event_resources', 'event_id', 'resource_id');
+    }
+
 }

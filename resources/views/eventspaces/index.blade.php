@@ -27,7 +27,7 @@
                 <p class="text-xl font-semibold">No hay solicitudes que atender</p>
             </div>
         @else
-            <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 text-gray-700 dark:text-gray-200">
+            <div class="grid gap-4 grid-cols-1 md:grid-cols-2 text-gray-700 dark:text-gray-200">
                 @foreach ($events as $event)
                     
                     <!-- Código para saber si está rechazado -->
@@ -45,18 +45,26 @@
                         }
                     @endphp
 
-                    <div class="overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4 border border-gray-700 dark:border-gray-300
+                    <div class="overflow-hidden rounded-lg shadow-sm sm:rounded-lg mb-4 border border-gray-700 dark:border-gray-300 
                         @if($rechazado)
                             border-red-700 dark:border-red-300
                         @elseif(!$rechazado&&$event->status=="finalizado")
                             border-green-700 dark:border-green-300
                         @else
-                            border-yellow-700 dark:border-yellow-300
+                            border-yellow-500 dark:border-yellow-300
                         @endif
                         ">
                         
-                        <div class="text-center">
-                            <h2 class="text-xl font-semibold mb-2">{{ $event->title }}</h2>
+                        <div class="text-center
+                        @if($rechazado)
+                            bg-red-700 dark:bg-red-300
+                        @elseif(!$rechazado&&$event->status=="finalizado")
+                            bg-green-700 dark:bg-green-300
+                        @else
+                            bg-yellow-600 dark:bg-yellow-300
+                        @endif
+                        ">
+                            <h2 class="text-xl font-semibold mb-2 text-slate-100 dark:text-slate-700">{{ $event->title }}</h2>
                         </div>
                         
 
@@ -80,23 +88,49 @@
 
                             
                             <p><strong>Departamento solicitante:</strong> {{ $event->department->name }}</p>
-                            <p><strong>Responsable:</strong> {{ $event->responsible->name }}</p>
+                            <p><strong>Persona solicitante:</strong> {{ $event->responsible->name }} (<a href="mailto:{{ $event->responsible->email }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline">{{ $event->responsible->email }}</a>)</p>
                             <p><strong>Fecha:</strong> Del {{ $event->start_date }} al {{ $event->end_date }}</p>
                             <p><strong>Horario:</strong> De {{ $event->start_time }} a {{ $event->end_time }}</p>                                                        
                             
                             @if ($event->registration_url!=null)
-                                <p><strong>Registro:</strong><a href="{{ $event->registration_url }}" target="_blank" class="text-blue-600 hover:text-blue-900 underline"> {{ $event->registration_url }}</a></p>
+                                <p><strong>Registro:</strong><a href="{{ $event->registration_url }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->registration_url }}</a></p>
                             @else
                                 <p><strong>Registro:</strong>No se requiere</p>
                             @endif
 
                             @if ($event->program)
-                                <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 underline" download>Descargar Programa</a></p>
+                                <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline" download>Descargar Programa</a></p>
                             @endif
 
                             @if($rechazado)
                                 <p><strong>Motivo de rechazo:</strong> {{ $motivo }}</p>
                             @endif
+
+                            <!-- Información de contacto -->
+                            @if ($event->contact_email!=null)
+                                <p><strong>Correo electrónico de contacto:</strong><a href="mailto:{{ $event->contact_email }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->contact_email }}</a></p>
+                            @endif
+
+                            <!-- Sitio web sobre el evento -->
+                            @if ($event->website!=null)
+                                <p><strong>Sitio web del evento:</strong><a href="{{ $event->website }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->website }}</a></p>
+                            @endif
+
+                            <!-- Requisitos adicionales-->
+                            @if ($event->requirements!=null)
+                                <p><strong>Requisitos para el evento:</strong> {{ $event->requirements }}</p>
+                            @endif
+
+                            <!-- Verificación del uso de recursos -->
+                            @if($event->resources->isNotEmpty())
+                                <p><strong>Recursos/equipo solicitados:</strong></p>
+                                <ul>
+                                    @foreach ($event->resources as $resource)
+                                        <li class="ml-2">- {{ $resource->name }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
 
                             <!-- Botones de Autorizar y Rechazar -->
                             @if($event->status=="solicitado")

@@ -116,11 +116,25 @@
                         <strong>No se requiere registro</strong>
                     @endif
                 </div>
+
+                <!-- Requsitos adicionales -->
+                <div class="mb-2">
+                    <strong>Requisitos adicionales:</strong> <span class="text-gray-700 dark:text-gray-200">{{$event->requirements}}.</span>
+                </div>
+
+                <!-- Recursos  -->
+                @if($event->resources->isNotEmpty())
+                <p><strong>Recursos/equipo solicitados:</strong></p>
+                <ul>
+                    @foreach ($event->resources as $resource)
+                        <li class="ml-2">- {{ $resource->name }}</li>
+                    @endforeach
+                </ul>
+            @endif
+
             </div>
 
             <!-- Información que se puede modificar -->
-                
-
             <div class="my-2 ml-1 border p-4 my-2 border-gray-800 dark:border-gray-300">
                 <!-- Encabezado de sección -->
                 <h2 class="font-bold text-xl mb-2 text-gray-800 dark:text-slate-300">
@@ -182,7 +196,7 @@
                 </div>
 
                 <!-- Programa -->
-                <h2 class="font-bold">Cartel o programa</h2>
+                {{-- <h2 class="font-bold">Cartel o programa</h2>
                 @if ($event->program)
                     <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-200 underline" download>Descargar Programa</a></p>
                 @else
@@ -200,7 +214,7 @@
                     @error('program')
                         <p class="text-red-500 text-sm">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> --}}
             </div>
         </div>
 
