@@ -31,6 +31,7 @@
                     @csrf
                     <!-- Bloque de ordenamiento -->
                     <div>
+                        <h3 class="font-semibold">Orden de aparición de los eventos</h3>
                         <label for="orderBy">Ordenar por:</label>
                         <select name="orderBy" id="orderBy">
                             <option value="title">Título</option>
@@ -44,13 +45,23 @@
 
                     <!-- Bloque de filtrado por campo -->
                     <div class="p-2">
-                        <label for="searchByField">Búsqueda por campo:</label>
+                        <h3 class="font-semibold">Búsqueda por campo</h3>
+                        <label for="searchByField">Criterios de búsqueda:</label>
                         <select name="searchByField" id="searchByField">
                             <option value="title">Título</option>
                             <option value="summary">Resumen</option>
                         </select>
                         
                         <input type="text" name="searchBy" id="searchBy">
+                    </div>
+
+                    <!-- Bloque de filtrado por fecha -->
+                    <div class="p-2">
+                        <h3 class="font-semibold">Limitar a eventos en este periodo: <span class="text-sm text-gray-600 dark:text-gray-300"> (estos dos campos son opcionales)</span></h3>
+                        <label for="searchByStartDate">A partir del día</label>
+                        <input type="date" name="searchByStartDate" id="searchByStartDate" />
+                        <label for="searchByEndDate"> y/o a más tardar el día</label>
+                        <input type="date" name="searchByEndDate" id="searchByEndDate" />
                     </div>
 
                     <div>

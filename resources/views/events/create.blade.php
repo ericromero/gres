@@ -37,7 +37,11 @@
                         </div>
 
                         <div class="mb-4 block font-bold">
-                            Fecha o periodo: del {{$start_date}} al {{$end_date}}, de {{$start_time}} a {{$end_time}} horas.
+                            @if ($start_date_string==$end_date_string)
+                                Fecha: {{$start_date_string}} de {{$start_time}} a {{$end_time}} horas.
+                            @else
+                                Periodo: del {{$start_date_string}} al {{$end_date_string}}, de {{$start_time}} a {{$end_time}} horas.
+                            @endif                            
                         </div>
 
                         <!-- Departamento solicitante -->

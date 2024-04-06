@@ -10,7 +10,8 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
 
     // Ruta para acceder a la creación de eventos
     //Route::get('/events/seleccionado', [EventController::class,'createWithSpace'])->name('events.createwithSpace');
-    Route::get('/events/seleccionado/{space}/{start_date}/{end_date}/{start_time}/{end_time}', [EventController::class,'createWithSpace'])->name('events.createwithSpace');
+    //Route::get('/events/seleccionado/{space}/{start_date}/{end_date}/{start_time}/{end_time}', [EventController::class,'createWithSpace'])->name('events.createwithSpace');
+    Route::post('/events/create-with-space', [EventController::class, 'createWithSpace'])->name('events.createwithSpace');
 
     // Ruta para guardar el nuevo evento en la base de datos
     Route::post('/eventos/guardar', [EventController::class, 'store'])->name('events.store');
