@@ -52,7 +52,10 @@ class EventController extends Controller
             ->whereDoesntHave('eventSpaces', function ($query) {
                 $query->where('status', '=', 'rechazado');
             })
+            ->orderBy('start_date','asc')
             ->get();
+        
+        //return $events;
     
         foreach ($events as $event) {
             $start_date = Carbon::createFromFormat('Y-m-d', $event->start_date);
@@ -81,10 +84,17 @@ class EventController extends Controller
 
     public function myEvents()
     {
-        $events = Event::where('responsible_id', Auth::user()->id)
-            ->orWhere('coresponsible_id', Auth::user()->id)
-            ->orderBy('created_at', 'desc') 
-            ->paginate(8);
+        // ID del usuario actual
+        $userId = Auth::id();
+
+        // Obtiene todos los eventos donde el usuario es responsable, coresponsable o participante
+        $events = Event::where('responsible_id', $userId)
+        ->orWhere('coresponsible_id', $userId)
+        ->orWhereHas('participants', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->orderBy('start_date', 'asc')
+        ->paginate(8);
         return view('events.my-events', compact('events'));
     }
 
@@ -125,13 +135,22 @@ class EventController extends Controller
         $academicos = User::has('adscriptions.department')->get();
         
         // Obtener la lista de tipos de eventos disponibles
-         $eventTypes = EventType::orderBy('name','asc')->get();
+        $eventTypes = EventType::orderBy('name','asc')->get();
 
         return view('events.create', compact('eventTypes','academicos'));
     }
 
-    public function createWithSpace(Request $request,$space,$start_date,$end_date,$start_time,$end_time)
+    public function createWithSpace(Request $request)
     {
+        // Extrae los valores del formulario
+        $spaceId = $request->input('space');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $start_time = $request->input('start_time');
+        $end_time = $request->input('end_time');
+        $start_date_string=$this->getStringDate($start_date);
+        $end_date_string=$this->getStringDate($end_date);
+
         // Obtén el usuario autenticado
         $user = Auth::user();
 
@@ -140,11 +159,26 @@ class EventController extends Controller
             return $adscription->department;
         });
 
-        $space=Space::find($request->space);
-        // $start_date=$request->start_date;
-        // $end_date=$request->end_date;
-        // $start_time=$request->start_time;
-        // $end_time=$request->end_time;
+        // Se verifica que el espacio seleccionado esté habilitado        
+        $space=Space::find($spaceId);
+        if($space!=null&&!$space->availability) {
+            return back()->with('error', 'El espacio solicitado no está disponible.');
+        }
+
+        ///////// Este bloque verifica si el espacio seleccionado tiene una excepción de horario //////////////////////
+        // Convertir las fechas a día de la semana
+        $daySearch = Carbon::parse($start_date)->locale('es')->isoFormat('dddd');
+        
+        // Verificar si el espacio tiene excepciones para el día y hora buscados
+        $hasException = $space->exceptions()->where('day_of_week', $daySearch)
+                        ->whereTime('start_time', '<=', $end_time)
+                        ->whereTime('end_time', '>=', $start_time)
+                        ->exists();
+
+        if ($hasException) {
+            return back()->with('error', 'El espacio solicitado tiene una excepción de horario para la fecha y hora seleccionadas.');
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Obtener los usuarios con departamento asignado
         $academicos = User::has('adscriptions.department')->orderBy('name','asc')->get();
@@ -165,7 +199,7 @@ class EventController extends Controller
         $categories = EventCategory::orderBy('name','asc')->get();
         
 
-        return view('events.create', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences','eventTypes','knowledge_areas','categories'));
+        return view('events.create', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences','eventTypes','knowledge_areas','categories','start_date_string','end_date_string'));
     }
 
     public function store(Request $request)
@@ -341,6 +375,29 @@ class EventController extends Controller
         ];
     
         $validatedData = $request->validate($rules, $messages);
+
+        // Se verifica que el spacio seleccionado esté habilitado
+        if($request->input('space')!=null) {
+            $space=Space::find($request->input('space'));
+            if(!$space->availability) {
+                return redirect()->route('spaces.search')->with('error', 'El espacio solicitado no está disponible.');
+            }
+        }
+
+        ///////// Este bloque verifica si el espacio seleccionado tiene una excepción de horario //////////////////////
+        // Convertir las fechas a día de la semana
+        $daySearch = Carbon::parse($request->input('start_date'))->locale('es')->isoFormat('dddd');
+        
+        // Verificar si el espacio tiene excepciones para el día y hora buscados
+        $hasException = $space->exceptions()->where('day_of_week', $daySearch)
+                        ->whereTime('start_time', '<=', $request->input('end_time'))
+                        ->whereTime('end_time', '>=', $request->input('start_time'))
+                        ->exists();
+
+        if ($hasException) {
+            return redirect()->route('spaces.search')->with('error', 'El espacio solicitado tiene una excepción de horario para la fecha y hora seleccionadas.');
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         $eventType = $request->input('event_type_id');
 
@@ -695,6 +752,11 @@ class EventController extends Controller
     }
 
     public function registrarParticipantes(Event $event) {
+        //Solo se pueden editar eventos no publicados y vigentes
+        if($event->published==1) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está publicado, no puede modificarse.');
+        }
+
         // Obtener los tipos de participantes
         $participationTypes = ParticipationType::all();
         $participants=EventParticipant::where('event_id',$event->id)->get();
@@ -703,6 +765,11 @@ class EventController extends Controller
     }
 
     public function actualizarParticipantes(Event $event) {
+        //Solo se pueden editar eventos no publicados y vigentes
+        if($event->published==1) {
+            return redirect()->route('events.byArea')->with('error','El evento ya está publicado, no puede modificarse.');
+        }
+        
         // Obtener los tipos de participantes
         $participationTypes = ParticipationType::all();
         $participants=EventParticipant::where('event_id',$event->id)->get();
@@ -827,9 +894,31 @@ class EventController extends Controller
                 $events->where($request->searchByField,'like', '%' . $request->searchBy . '%');
             }
         }
-    
+
+        // Aplicar filtros por fecha de inicio si lo hay
+        if ($request->has('searchByStartDate')) {
+            $searchByStartDate = $request->searchByStartDate;
+            if (!empty($searchByStartDate)) {
+                $events->where('start_date','>=', $searchByStartDate);
+            }
+        }
+
+        // Aplicar filtros por fecha de término si lo hay
+        if ($request->has('searchByEndDate')) {
+            $searchByEndDate = $request->searchByEndDate;
+            if (!empty($searchByEndDate)) {
+                $events->where('end_date','<=', $searchByEndDate);
+            }
+        }
+
         // Paginar los resultados
         $events = $events->paginate(8);
+
+        // Convertir fechas numéricas a texto
+        foreach ($events as $event) {
+            $event->start_date=$this->getStringDate($event->start_date);
+            $event->end_date=$this->getStringDate($event->end_date);
+        }
     
         // Mantener los parámetros de filtro en el paginador
         $events->appends($request->except('page'));
@@ -878,7 +967,11 @@ class EventController extends Controller
         $departmentIds = $user->adscriptions->pluck('department_id');
 
         // Obtén los eventos que pertenecen a los departamentos del usuario
-        $events = Event::whereIn('department_id', $departmentIds)->orderBy('created_at', 'desc')->paginate(8);
+        $events = Event::whereIn('department_id', $departmentIds)->orderBy('start_date', 'desc')->paginate(8);
+        foreach ($events as $event) {
+            $event->start_date=$this->getStringDate($event->start_date);
+            $event->end_date=$this->getStringDate($event->end_date);
+        }
         return $events;
 
     }
@@ -917,6 +1010,8 @@ class EventController extends Controller
 
     public function show(Event $event) {
         //return $event->users;
+        $event->start_date=$this->getStringDate($event->start_date);
+        $event->end_date=$this->getStringDate($event->end_date);
         $participants=EventParticipant::where('event_id',$event->id)->get();
         return view('events.show',compact('event','participants'));
     }
@@ -1265,5 +1360,9 @@ class EventController extends Controller
             }                
         }
         return $available;
+    }
+
+    private function getStringDate($date) {
+        return Carbon::parse($date)->isoFormat('dddd D [de] MMMM [de] YYYY');
     }
 }

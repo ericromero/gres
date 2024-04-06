@@ -41,4 +41,10 @@ class Space extends Model
     {
         return $this->hasMany(EventSpace::class, 'space_id');
     }
+
+    public function exceptions()
+    {
+        return $this->hasMany(SpaceException::class);
+    }
+
 }

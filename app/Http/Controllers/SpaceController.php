@@ -13,6 +13,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Resource;
 
+// Establecer el locale en español
+Carbon::setLocale('es');
+
 class SpaceController extends Controller
 {
 
@@ -117,13 +120,29 @@ class SpaceController extends Controller
                     ->where('event_spaces.status', '!=', 'rechazado')
                     ->pluck('event_spaces.space_id');
 
-        // Se obtiene la lista de los espacios disponibles, excluyendo aquellos que ya están ocupados
-        $availableSpaces = DB::table('spaces')
-                    ->whereNotIn('id', $excludedSpaceIds)
-                    ->get();
+        // Obtiene el día de la semana en español
+        $daySearch = Carbon::parse($start_date)->isoFormat('dddd');
+
+        // Se obtiene la lista de espacios que tienen excepciones para el día y hora buscados
+        $excludedSpaceIdsForExceptions = Space::whereHas('exceptions', function ($query) use ($daySearch, $start_time, $end_time) {
+            $query->where('day_of_week', $daySearch)
+                ->whereTime('start_time', '<=', $end_time)
+                ->whereTime('end_time', '>=', $start_time);
+        })->pluck('id');
+
+        // Combina los IDs de espacios excluidos por eventos y por excepciones
+        $allExcludedSpaceIds = $excludedSpaceIds->merge($excludedSpaceIdsForExceptions)->unique();
+
+        // Se obtiene la lista de los espacios disponibles, excluyendo aquellos que ya están ocupados o tienen excepciones
+        $availableSpaces = Space::where('availability', true)
+                        ->whereNotIn('id', $allExcludedSpaceIds)
+                        ->get();
+
+        $start_date_string=$this->getStringDate($start_date);
+        $end_date_string=$this->getStringDate($end_date);
 
 
-        return view('events.availablesearch', compact('availableSpaces','start_date','end_date','start_time','end_time','events'));
+        return view('events.availablesearch', compact('availableSpaces','start_date','end_date','start_time','end_time','events','start_date_string','end_date_string'));
     }
 
     public function index() {
@@ -258,6 +277,23 @@ class SpaceController extends Controller
         return redirect()->route('spaces.index')->with('success', 'El espacio ha sido eliminado exitosamente.');
     }
 
+    // Cambia la disponibilidad de un espacio
+    public function toggleAvailability(Space $space)
+    {
+        $space->availability = !$space->availability;
+        
+        if($space->save()) {
+            if(!$space->availability) {
+                return back()->with('success', 'Espacio inhabilitado, no se pueden solicitar eventos en él.');
+            } else {
+                return back()->with('success', 'Espacio habilitado, se pueden recibir solicitudes de eventos en él.');
+            }
+        } else {
+            return back()->with('error', 'No se pudo cambiar el estado del espacio.');
+        }
+    }
+
+
     public function getOverlappingEventIds($start_date, $end_date, $start_time, $end_time) {
         $overlappingEventIds = DB::table('events')
             ->whereIn('status', ['solicitado', 'aceptado', 'finalizado'])
@@ -289,5 +325,10 @@ class SpaceController extends Controller
         $department=Department::find($department_id);
         return $department->resources;
     }
+
+    private function getStringDate($date) {
+        return Carbon::parse($date)->isoFormat('dddd D [de] MMMM [de] YYYY');
+    }
+
 
 }

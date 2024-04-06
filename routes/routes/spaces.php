@@ -41,3 +41,9 @@ Route::middleware(['role:Administrador'])->group(function () {
     Route::delete('/espacio/{space}', [SpaceController::class, 'destroy'])->name('spaces.destroy');
 
 });
+
+Route::middleware(['role:Administrador|Coordinador|Gestor de espacios'])->group(function () {
+    // Cambiar la disponibilidad de un espacio
+    Route::put('/spaces/{space}/toggle-availability', [SpaceController::class, 'toggleAvailability'])
+     ->name('spaces.toggleAvailability');
+});

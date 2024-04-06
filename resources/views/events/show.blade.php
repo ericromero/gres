@@ -62,12 +62,12 @@
                 </p>
             </div>
 
-            @if ($event->program)
+            {{-- @if ($event->program)
                 <div class="mt-4">
                     <h2 class="text-lg font-semibold">Programa:</h2>
                     <a href="{{ asset($event->program) }}" class="text-blue-600 hover:underline dark:text-blue-300" download>Descargar Programa</a>
                 </div>
-            @endif                                    
+            @endif                                     --}}
 
             <div class="mt-4">
                 <h3 class="text-lg font-semibold">Registro:</h3>
@@ -96,12 +96,12 @@
                 </div>
             @endif
 
-            @if ($event->requirements)
+            {{-- @if ($event->requirements)
                 <div class="mt-4">
                     <h2 class="text-lg font-semibold">Requisitos adicionales:</h2>
                     <p>{{ $event->requirements }}</p>
                 </div>
-            @endif 
+            @endif  --}}
 
         </div>
         
@@ -109,16 +109,17 @@
         <!-- Recursos solicitados y Lista de participantes -->
         <div class="p-6 m-2 border {{ $event->cancelled=='1'? 'border-red-800 dark:border-red-300':'border-gray-700 dark:border-gray-300' }}">
             <!-- Lista de recursos -->
+            @if($event->resources->isNotEmpty())
             <div class="m-2">
                 <h3 class="text-lg font-semibold">Recursos/equipo solicitados</h3>
-                @if($event->resources->isNotEmpty())
-                                <ul>
-                                    @foreach ($event->resources as $resource)
-                                        <li class="ml-2">- {{ $resource->name }}</li>
-                                    @endforeach
-                                </ul>
-                            @endif
+                <ul>
+                    @foreach ($event->resources as $resource)
+                        <li class="ml-2">- {{ $resource->name }}</li>
+                    @endforeach
+                </ul>
             </div>
+            @endif
+
             <!-- Lista de participantes -->
             <div class="m-2">
                 <h3 class="text-lg font-semibold">Participantes</h3>

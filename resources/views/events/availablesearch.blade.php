@@ -6,12 +6,30 @@
     </x-slot>
 
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 overflow-hidden shadow-sm sm:rounded-lg dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+        
+        {{-- Código para el manejo de notificaciones --}}
+        @if(session('success'))
+            <div class="bg-green-200 text-green-800 p-4 mb-4 rounded-md">
+                {{ session('success') }}
+            </div>
+        @elseif(session('error'))
+            <div class="bg-red-200 text-red-800 p-4 mb-4 rounded-md">
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- DIV se pone el resultado de la Búsqueda --}}
         <div>
             @if(isset($availableSpaces))
                 <div class="py-4">
                     <h2>A continuación se muestran los espacios disponibles, si alguno de ellos se adecúa a tus requerimientos, da clic en Seleccionar este espacio para continuar con el registro.</h2>
-                    <p><b>Fecha:</b> Del {{$start_date}} al {{$end_date}}, <b>Horario:</b> De {{$start_time}} a {{$end_time}}</p>
+                    <p><b>Fecha:</b>
+                        @if ($start_date==$end_date)
+                            {{ $start_date_string }}
+                        @else
+                            del {{ $start_date_string }} al {{$end_date_string}}
+                        @endif, <b>Horario:</b> De {{$start_time}} a {{$end_time}} horas.
+                    </p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-2">
                 
@@ -27,7 +45,7 @@
                                     <p>Ubicación: {{ $space->location }}</p>
                                 </div>
                                 <div class="px-4 pb-4">
-                                    <a href="{{ route('events.createwithSpace', [
+                                    {{-- <a href="{{ route('events.createwithSpace', [
                                         'space' => $space->id,
                                         'start_date' => $start_date,
                                         'end_date' => $end_date,
@@ -35,7 +53,19 @@
                                         'end_time' => $end_time,
                                     ]) }}" class="block mb-4 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
                                         Seleccionar este espacio
-                                    </a>
+                                    </a> --}}
+                                    <form action="{{ route('events.createwithSpace') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="space" value="{{ $space->id }}">
+                                        <input type="hidden" name="start_date" value="{{ $start_date }}">
+                                        <input type="hidden" name="end_date" value="{{ $end_date }}">
+                                        <input type="hidden" name="start_time" value="{{ $start_time }}">
+                                        <input type="hidden" name="end_time" value="{{ $end_time }}">
+                                
+                                        <button type="submit" class="block mb-4 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
+                                            Seleccionar este espacio
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         @endforeach

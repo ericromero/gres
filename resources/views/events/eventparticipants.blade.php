@@ -201,9 +201,15 @@
         <!-- En caso de que aún no haya iniciado el registro, se muestra el botón -->
         
             <div class="flex mt-4 mb-4">
+                <!-- Botón para guardar borrador -->
+                <a href="{{route('dashboard')}}" class="m-2 py-2 px-3 bg-orange-600 text-white font-semibold rounded-md"
+                onclick="return confirm('Su solicitud está en borrador, aún no se ha solicitado el espacio al departamento correspondiente. ¿Desea salir y continuar en otro momento?')">
+                    {{ __('Guardar y continuar después') }}
+                </a>
+
                 @if ($event->start_date > now() )
                     <!-- Botón para cerrar el registro -->
-                    <a href="{{route('events.register',$event->id)}}" class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md"
+                    <a href="{{route('events.register',$event->id)}}" class="m-2 py-2 px-3 bg-green-600 text-white font-semibold rounded-md"
                         onclick="return confirm('Una vez que se registre la solicitud del evento no podrá modificar fechas, horarios ni espacios solicitados, pero si podrá cambiar el título, participantes y el cartel del evento. ¿Desea continuar?')">
                         {{ __('Registrar evento') }}
                     </a>
@@ -212,16 +218,11 @@
                         @csrf
                         @method('DELETE')
                         
-                        <button type="submit" class="px-4 py-2 ml-4 bg-red-500 text-white font-semibold rounded-md" onclick="return confirm('¿Estás seguro de que deseas cancelar este registro?')">
+                        <button type="submit" class="m-2 py-2 px-3 bg-red-600 text-white font-semibold rounded-md" onclick="return confirm('¿Estás seguro de que deseas cancelar este registro?')">
                             {{ __('Cancelar registro') }}
                         </button>
                     </form>  
-                @endif
-                
-                <!-- Botón para salir de la actualización -->
-                <a href="{{route('dashboard')}}" class="ml-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md">
-                    {{ __('Guardar sin registrar') }}
-                </a>
+                @endif                
             </div>
         
 

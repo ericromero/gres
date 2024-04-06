@@ -26,6 +26,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($spaces as $space)
                 <div class="bg-white dark:bg-gray-700 overflow-hidden shadow-md rounded-lg">
+                    @if($space->availability!=1)
+                        <div class="p-2 bg-red-300 text-center">ESPACIO INHABILITADO</div>
+                    @endif
                     <img src="{{ asset($space->photography) }}" alt="Imagen del espacio" class="w-full h-40 object-cover">
                     <div class="p-4">
                         <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
@@ -33,7 +36,7 @@
                     </div>
                     <div class="p-2 ml-2 border-t dark:border-gray-700">
                         <p>Capacidad: {{ $space->capacity }}</p>
-                        <p>Disponibilidad: {{ $space->availability }}</p>
+                        <p>Ubicación: {{ $space->location }}</p>
                     </div>
                     <div class="p-2 flex justify-end items-center space-x-2">
                         <a href="{{ route('spaces.edit', $space) }}" class="text-blue-500 dark:text-blue-300 hover:underline">Editar</a>
