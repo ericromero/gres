@@ -293,6 +293,11 @@ class SpaceController extends Controller
         }
     }
 
+    // Listado de espacios con excepciones y estatus
+    public function exceptions() {
+        $spaces=Space::orderBy('name','asc')->get();
+        return view('spaces.exceptions',compact('spaces'));
+    }
 
     public function getOverlappingEventIds($start_date, $end_date, $start_time, $end_time) {
         $overlappingEventIds = DB::table('events')

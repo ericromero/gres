@@ -11,11 +11,15 @@ Route::middleware(['role:Administrador|Coordinador|Gestor de eventos'])->group(f
 
         // Buscador de espacios disponibles
         Route::post('/buscador_de_espacios', [SpaceController::class,'search'])->name('spaces.search');
+
+        // Consultar excepciones de horarios de cada espacio
+        Route::get('/espacios/excepciones',[SpaceController::class,'exceptions'])->name('spaces.exceptions');
 });
 
 Route::middleware(['role:Coordinador|Gestor de espacios'])->group(function () {
     // Ruta para mostrar la lista de espacios
     Route::get('/mis_espacios', [SpaceController::class, 'my_spaces'])->name('spaces.my-spaces');
+
 });
 
 Route::middleware(['role:Administrador'])->group(function () {

@@ -147,6 +147,11 @@
                                            
                     </div>
                 </form>
+
+                <div class="m-2">
+                    <h3 class="font-bold">Excpeciones de horarios</h3>
+                    Recuerde que cada espacio cuenta con horarios específicos en que no pueden ser solicitados, para revisar estas excepciones de <a href="{{ route('spaces.exceptions') }}" class="text-blue-700 dark:text-blue-200 hover:underline">clic aquí</a>.
+                </div>
             </div>
             
             <div class="mx-2 p-2 border border-slate-400">

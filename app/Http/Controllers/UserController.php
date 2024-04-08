@@ -83,18 +83,13 @@ class UserController extends Controller
 
         return view('dashboard',compact('pendingEvents','draftEvents','unplublishEvents','eventsArea'));
     }
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         $users = User::orderBy('name', 'asc')->get();
         return view('users.index',compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $departments=Department::all();
@@ -102,9 +97,6 @@ class UserController extends Controller
         return view('users.create',compact('departments','roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {        
         $rules = [
@@ -164,9 +156,7 @@ class UserController extends Controller
         $user=User::find($request->user);
         return redirect()->route('users.edit',compact('user'));
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(User $user)
     {
         $departments=Department::all();
@@ -174,9 +164,6 @@ class UserController extends Controller
         return view('users.edit',compact('user','departments','roles'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $rules = [
@@ -228,10 +215,6 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //
@@ -314,67 +297,6 @@ class UserController extends Controller
         $userTeams->each->delete();
     }
 
-    // public function storeNewUserTeam(Request $request)
-    // {        
-    //     $rules = [
-    //         'degree' => ['required'],
-    //         'name' => ['required', 'string'],
-    //         'doi' => ['required', 'numeric', 'unique:users','min:1','max:9999999'],
-    //         'email' => ['required', 'email', 'unique:users'],
-    //         'department' => ['required'],
-    //         'roles'=>['required', 'array', 'min:1','in:3'],
-    //     ];
-
-    //     $messages = [
-    //         'email.required' => 'El correo electrónico es requerido.',
-    //         'email.email' => 'El correo electrónico debe ser una dirección válida.',
-    //         'email.unique' => 'Este correo electrónico ya está en uso por otro usuario.',
-    //         'doi.required' => 'El número de trabajador (DOI) es requerido.',
-    //         'doi.numeric' => 'El número de trabajador (DOI) debe ser numérico.',
-    //         'doi.max' => 'El número de trabajador (DOI) no puede ser mayor a 7 dígitos.',
-    //         'department.required' => 'Se requiere seleccionar al menos un departamento',
-    //         'roles.required' => 'Se requiere seleccionar al menos una función del usuario',
-    //         'roles.in' => 'Valor inválido',
-    //     ];
-
-    //     $validatedData = $request->validate($rules, $messages);
-    
-    //     $email = $validatedData['email'];
-    //     $password=Str::random(8); // Generar una contraseña aleatoria
-
-    //     $user = User::create([
-    //         'degree' => $validatedData['degree'],
-    //         'name' => $validatedData['name'],
-    //         'doi' => $validatedData['doi'],
-    //         'email' => $validatedData['email'],
-    //         'password' => Hash::make($password),
-    //     ]);
-
-    //     // Se agregan roles en caso de que existan
-    //     if ($request->has('roles')) {
-    //         $user->roles()->sync($request->input('roles'));
-    //     }
-
-    //     // Agregar un solo departamento al usuario
-    //     if (isset($validatedData['department'])) {
-    //         $user->departments()->attach($validatedData['department']);
-    //     }
-
-    //     // Crear un nuevo registro en la tabla teams
-    //     $usuarioAutenticado=Auth::user();
-    //     Team::create([
-    //         'user_id' => $user->id,
-    //         'department_id' => $validatedData['department'],
-    //         'register_id'=>$usuarioAutenticado->id,
-    //     ]);
-
-    //     // Notificación por correo electrónico de la cuenta creada
-    //     Mail::to($email)->send(new WelcomeEmail($email, $password));
-    
-    //     return redirect()->route('users.team')
-    //         ->with('success', 'Usuario creado y agregado al equipo exitosamente.');
-    // }
-
     public function removeTeam(Team $team)
     {
         $user = User::find($team->user_id); // Obtén el usuario asociado al equipo
@@ -389,5 +311,26 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'El usuario fue removido del equipo correctamente.');
     }
 
-
+    public function list(Request $request) {
+        $roles=Role::orderBy('name','asc')->get();
+        $searchTerm = $request->input('name');
+        $selectedRoles = $request->input('roles');
+    
+        $query = User::orderBy('name', 'asc');
+    
+        if (!empty($searchTerm)) {
+            $query->where('name', 'like', '%' . $searchTerm . '%');
+        }
+    
+        if (!empty($selectedRoles)) {
+            $query->whereHas('roles', function ($query) use ($selectedRoles) {
+                $query->whereIn('name', $selectedRoles);
+            });
+        }
+    
+        $users = $query->paginate(30);
+    
+        return view('users.list', compact('users','roles'));
+    }
+    
 }

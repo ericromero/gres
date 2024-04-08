@@ -20,6 +20,9 @@ Route::middleware(['role:Administrador'])->group(function () {
 
     // Ruta para guardar el nuevo usuario en la base de datos
     Route::post('/usuarios', [UserController::class, 'store'])->name('users.store');
+
+    // Lista completa de usuarios
+    Route::get('/usuarios/lista', [UserController::class, 'list'])->name('users.list');
 });
 
 Route::middleware(['role:Coordinador'])->group(function () {

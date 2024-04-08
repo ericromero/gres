@@ -14,8 +14,12 @@
             </div>
         @endif
 
-        <div class="my-2">
-            <a href="{{ route('users.create') }}" class="block text-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 inline-block">Agregar usuario</a>
+        <div class="my-2 flex">
+            <a href="{{ route('users.create') }}" class="block text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 inline-block">Agregar usuario</a>
+            <form action="{{ route('users.list') }}" method="GET">
+                @csrf
+                <input type="submit" name="list" id="list" value="Ver lista completa" class="mx-2 block text-center px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-500 inline-block cursor-pointer">
+            </form>            
         </div>
 
         <form action="{{route('users.search')}}" method="POST">
