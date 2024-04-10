@@ -49,9 +49,7 @@ class SpaceController extends Controller
         }
 
         // Obtiene solo los eventos que no tienen espacios rechazados
-        $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
-            $query->where('status', '=', 'rechazado');
-        })->get();
+        $allEvents = Event::whereDoesntHave('canceledEvent')->get();
 
         $events = [];
         foreach ($allEvents as $event) {
@@ -113,7 +111,7 @@ class SpaceController extends Controller
         // Se obtiene los eventos que se traslapan 
         $overlappingEventIds = $this->getOverlappingEventIds($start_date, $end_date, $start_time, $end_time);
 
-        // Se obtiene la lista de espacios que no se pueden prestar ya que estan ocupados en eventos ya traslapados, excluyendo los que tienen un estado 'rechazado'
+        // Se obtiene la lista de espacios que no se pueden prestar ya que estan ocupados y hay traslape, se omiten los espacios que han sido cancelados
         $excludedSpaceIds = DB::table('event_spaces')
                     ->join('events', 'events.id', '=', 'event_spaces.event_id')
                     ->whereIn('event_spaces.event_id', $overlappingEventIds)
@@ -295,15 +293,17 @@ class SpaceController extends Controller
 
 
     public function getOverlappingEventIds($start_date, $end_date, $start_time, $end_time) {
-        $overlappingEventIds = DB::table('events')
-            ->whereIn('status', ['solicitado', 'aceptado', 'finalizado'])
+        $overlappingEventIds = Event::whereIn('status', ['solicitado', 'aceptado', 'finalizado'])
+            ->whereDoesntHave('canceledEvent') // Excluir eventos cancelados
             ->where(function ($query) use ($start_date, $end_date, $start_time, $end_time) {
-                $query->where('start_date', '<=', $end_date)
-                    ->where('end_date', '>=', $start_date)
-                    ->where(function ($query) use ($start_time, $end_time) {
-                        $query->where('start_time', '<=', $end_time)
-                            ->where('end_time', '>=', $start_time);
-                    });
+                $query->where(function ($query) use ($start_date, $end_date) {
+                    $query->where('start_date', '<=', $end_date)
+                        ->where('end_date', '>=', $start_date);
+                })
+                ->where(function ($query) use ($start_time, $end_time) {
+                    $query->where('start_time', '<=', $end_time)
+                        ->where('end_time', '>=', $start_time);
+                });
             })
             ->pluck('id');
     

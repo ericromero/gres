@@ -17,4 +17,9 @@ class CanceledEvent extends Model
         'cancellation_reason',
         'canceled_by_user_id',
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
 }
