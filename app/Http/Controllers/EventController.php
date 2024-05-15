@@ -308,6 +308,9 @@ class EventController extends Controller
                     $query->where('email', '!=', request('email_responsible'));
                 }),
             ],
+            'agreeTerms' => [
+                'accepted',
+            ],
         ];
     
         $messages = [
@@ -372,6 +375,8 @@ class EventController extends Controller
             'contact_email.email' => 'Por favor, ingresa una dirección de correo electrónico válida.',
 
             'website.url' => 'Por favor, ingresa una URL válida para el sitio web.',
+
+            'agreeTerms.accepted' => 'Es necesario indicar que ha leído y está deacuerdo con los lineamientos del espacio solicitado.',
         ];
     
         $validatedData = $request->validate($rules, $messages);
@@ -963,17 +968,16 @@ class EventController extends Controller
         // Obtén el usuario autenticado
         $user = Auth::user();
 
-        // Obtén los IDs de los departamentos a los que el usuario está adscrito
+        // Obtiene los IDs de los departamentos a los que el usuario está adscrito
         $departmentIds = $user->adscriptions->pluck('department_id');
 
-        // Obtén los eventos que pertenecen a los departamentos del usuario
+        // Obtiene los eventos que pertenecen a los departamentos del usuario
         $events = Event::whereIn('department_id', $departmentIds)->orderBy('start_date', 'desc')->paginate(8);
         foreach ($events as $event) {
             $event->start_date=$this->getStringDate($event->start_date);
             $event->end_date=$this->getStringDate($event->end_date);
         }
         return $events;
-
     }
 
     public function calendario() {
@@ -1171,7 +1175,7 @@ class EventController extends Controller
             ->join('event_spaces', 'events.id', '=', 'event_spaces.event_id')
             ->join('spaces', 'event_spaces.space_id', '=', 'spaces.id')
             ->where('spaces.department_id', $departmentID)
-            ->where('events.published','1')
+            
             ->where('events.status','finalizado')
             ->where('events.cancelled','0')
             ->get();
@@ -1198,6 +1202,39 @@ class EventController extends Controller
             }
         }
         return view('events.by_day',compact('events'));
+    }
+
+    public function byDayAll() {
+        $allEvent=true;
+        $allEvents = Event::select('events.*')
+            ->join('event_spaces', 'events.id', '=', 'event_spaces.event_id')
+            ->join('spaces', 'event_spaces.space_id', '=', 'spaces.id')
+            ->where('events.published','1')
+            ->where('events.cancelled','0')
+            ->get();
+        $events = [];
+        foreach ($allEvents as $event) {
+            // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
+            $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->start_date . ' ' . $event->start_time);
+            $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->end_date . ' ' . $event->end_time);
+
+            // Añadir un evento por cada día entre la fecha de inicio y la fecha de finalización
+            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+                // Asegurarse de que el evento no se extienda más allá de la fecha de finalización y hora
+                $endDateTime = $date->copy()->setTimeFrom(Carbon::createFromFormat('H:i:s', $event->end_time));
+                if ($endDateTime->gt($endDate)) {
+                    $endDateTime = $endDate->copy();
+                }
+
+                $events[] = [
+                    'title' => $event->title,
+                    'start' => $date->toDateTimeString(),
+                    'end' => $endDateTime->toDateTimeString(),
+                    'id' => $event->id,
+                ];
+            }
+        }
+        return view('events.by_day',compact('events','allEvent'));
     }
 
     public function selectResources(Event $event) {

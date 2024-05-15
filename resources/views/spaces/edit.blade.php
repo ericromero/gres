@@ -138,7 +138,37 @@
             </form>
         </div>
 
-        
+        <!-- Actualización de documento de lineamientos -->
+        <div class="p-2 m-2 border border-gray-600 dark:border-gray-200">
+            <h3 class="font-bold mb-2">Lineamientos del espacio</h3>
+            <div class="p-2">
+                @if(isset($space->terms)&&$space->terms!=null)
+                    <a href="{{ asset($space->terms) }}" target="_blank">Ver documento Actual</a>
+                @else
+                    <div class="p-2 text-red-600 dark:text-red-300">No se ha cargado el documento de lineamientos.</div>
+                @endif
+            </div>
+            <div class="p-2">
+                <form action="{{ route('spaces.updateTerms', $space) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    
+                    <!-- Carga del documento pdf -->
+                    <input 
+                        type="file" 
+                        name="terms" 
+                        id="terms"                                 
+                        accept=".pdf"
+                        required
+                        class="form-input dark:bg-gray-800 dark:text-white @error('terms') border-red-500 @enderror">
+                    @error('terms')
+                        <p class="text-red-500 text-sm">{{ $message }}</p>
+                    @enderror
+                
+                    <button type="submit" class="bg-blue-600 text-white p-2 my-2">Actualizar documento</button>
+                </form>
+            </div>
+        </div>
 
     </div>
 

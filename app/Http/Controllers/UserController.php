@@ -92,9 +92,6 @@ class UserController extends Controller
         return view('users.index',compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $departments=Department::all();
@@ -102,9 +99,6 @@ class UserController extends Controller
         return view('users.create',compact('departments','roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {        
         $rules = [
@@ -159,14 +153,11 @@ class UserController extends Controller
             ->with('success', 'Usuario creado exitosamente.');
     }
 
-
     public function search(Request $request) {
         $user=User::find($request->user);
         return redirect()->route('users.edit',compact('user'));
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit(User $user)
     {
         $departments=Department::all();
@@ -174,12 +165,10 @@ class UserController extends Controller
         return view('users.edit',compact('user','departments','roles'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $rules = [
+            'name' => ['required','max:255','unique:users,name,' . $user->id],
             'email' => ['required', 'email', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'confirmed'],
             'degree'=>['required'],
@@ -187,6 +176,9 @@ class UserController extends Controller
         ];
 
         $messages = [
+            'name.max' => 'El nombre del usuario no debe exceder los 255 caracteres.',
+            'name.required' => 'El nombre del usuario es requerido.',
+            'name.unique' => 'Este nombre de usuario ya está registrado.',
             'email.required' => 'El correo electrónico es requerido.',
             'email.email' => 'El correo electrónico debe ser una dirección válida.',
             'email.unique' => 'Este correo electrónico ya está en uso por otro usuario.',            
@@ -196,8 +188,9 @@ class UserController extends Controller
         ];
 
         $validatedData = $request->validate($rules, $messages);
-        $user->degree = $validatedData['degree'];
+        $user->name = $validatedData['name'];
         $user->email = $validatedData['email'];
+        $user->degree = $validatedData['degree'];
 
         if ($request->filled('password')) {
             $user->password = Hash::make($validatedData['password']);

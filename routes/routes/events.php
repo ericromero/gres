@@ -83,8 +83,11 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
 
 
 Route::middleware(['role:Coordinador|Gestor de espacios'])->group(function () {
-    // Ruta para encontrar disponibilidad de horario para reservar
+    // Muestra los eventos del día de un area específica
     Route::get('/eventos/agenda', [EventController::class, 'byDay'])->name('events.byDay');
+
+    // Muestra los eventos del día de todas las áreas
+    Route::get('/eventos/agenda/completa', [EventController::class, 'byDayAll'])->name('events.byDayAll');
 
 });
 

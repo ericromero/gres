@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SpaceController;
 
 
 /*
@@ -26,11 +27,9 @@ Route::get('/calendario', [EventController::class, 'calendario'])->name('eventos
 
 Route::get('/creditos', [EventController::class, 'creditos'])->name('desarrolladores');
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::get('dashboard',[UserController::class,'dashboard'])->middleware(['auth','verified'])->name('dashboard');
+
+Route::get('lineamientos',[SpaceController::class,'terms'])->middleware(['auth','verified'])->name('terms');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

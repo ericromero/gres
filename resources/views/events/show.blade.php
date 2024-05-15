@@ -152,9 +152,12 @@
             </div>
             
         </div>
+    
+        <!-- Botón de regreso -->
+        <div class="my-4">
+            <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md">Regresar</a>
+        </div>
+
     </div>
 
-    <div class="ml-10 my-4">
-        <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange-500 text-white font-semibold rounded-md">Regresar</a>
-    </div>
 </x-app-layout>

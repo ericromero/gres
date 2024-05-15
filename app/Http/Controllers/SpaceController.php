@@ -275,6 +275,39 @@ class SpaceController extends Controller
         return redirect()->route('spaces.index')->with('success', 'El espacio ha sido eliminado exitosamente.');
     }
 
+    // Muestra la vista con los documentos de lineamientos de cada espacio
+    public function terms() {
+        $spaces=Space::orderby('name','asc')->get();
+        return view('terms',compact('spaces'));
+    }
+
+    // Actualizar el documento de lineamientos de un espacio
+    public function updateTerms(Space $space, Request $request) {
+        $request->validate([
+            'terms' => 'required|file|mimes:pdf|max:5120',
+        ]);
+
+        // Procesar el documento PDF
+        if ($request->hasFile('terms')) {
+            $terms = $request->file('terms');
+            $docName = time() . '_' . $terms->getClientOriginalName();
+
+            // Borrar un documento anterior si existe
+            if ($space->terms) {
+                $oldImagePath = public_path($space->terms);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            $terms->move(public_path('docs/spaces'), $docName);
+            $space->terms = 'docs/spaces/' . $docName;
+            $space->save();
+            return back()->with('success', 'Documento actualizado correctamente.');
+        }
+        return back()->with('error', 'El documento no se pudo cargar.');
+    }
+
     // Cambia la disponibilidad de un espacio
     public function toggleAvailability(Space $space)
     {
@@ -329,6 +362,5 @@ class SpaceController extends Controller
     private function getStringDate($date) {
         return Carbon::parse($date)->isoFormat('dddd D [de] MMMM [de] YYYY');
     }
-
 
 }

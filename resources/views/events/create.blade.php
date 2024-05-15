@@ -432,8 +432,9 @@
 
                         <!-- Se requiere registro -->
                         <div class="mb-4">
-                            <label for="registration_required" class="block font-bold mb-2">Requiere Registro: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requiere un registro de los asistentes al evento, active esta casilla y posteriormente escriba la URL del enlace web donde se pueden registrar los asistentes. Este sitio de registro debe ser gestionado por el responsable del evento.">?</span></label>
+                            <h3 class="font-bold">Registro</h3>
                             <input type="checkbox" name="registration_required" id="registration_required" class="form-checkbox" {{ old('registration_required') ? 'checked' : '' }}>
+                            <label for="registration_required" class="mb-2">Para acceder al evento se requiere registro previo en un sitio web externo: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requiere un registro de los asistentes al evento, active esta casilla y posteriormente escriba la URL del enlace web donde se pueden registrar los asistentes. Este sitio de registro debe ser gestionado por el responsable del evento.">?</span></label>
                             @error('registration_required')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
@@ -446,10 +447,6 @@
                             @error('registration_url')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror                            
-                        </div>
-
-                        <div class="border p-4 border-gray-800 dark:border-gray-300">
-                            <b>Nota:</b> Si requiere servicio de grabación, fotografia o transmisión, por favor acuda directamente a UDEMAT para solicitar el servicio.
                         </div>
 
                         {{-- Se remueven las opciones de servicios de UDEMAT hasta que esté implementado --}}
@@ -469,10 +466,29 @@
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
                         </div> --}}
+
+                        <div class="form-check">
+                            <h3 class="font-bold">Lineamientos en el uso de espacios</h3>
+                            <input class="form-check-input {{ $errors->has('agreeTerms') ? 'is-invalid' : '' }}" type="checkbox" id="agreeTerms" name="agreeTerms">
+                            <label class="form-check-label" for="agreeTerms">
+                                He leído y estoy de acuerdo con los <a href="{{ route('terms') }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline dark:texte-blue-200 dark:hover:text-blue-400">lineamientos del espacio solicitado</a>. 
+                            </label>
+                            <p id="termsError" style="display:none; color:red;">
+                                Tiene que estar de acuerdo con los lineamientos del espacio solicitado.
+                            </p>
+                            @error('agreeTerms')
+                                <p class="text-red-500 text-sm">{{ $message }}</p>
+                            @enderror  
+                        </div>
+
+                        <!-- Nota sobre la solicitud de recursos de UDEMAT -->
+                        <div class="border p-4 mt-2 border-gray-800 dark:border-gray-300">
+                            <b>Nota:</b> Si requiere servicio de grabación, fotografia o transmisión, por favor acuda directamente a UDEMAT para solicitar el servicio.
+                        </div>
                         
                         <div class="flex">
                             <div class="flex items-center justify-end mt-4">
-                                <button type="submit" class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md">Registrar Evento</button>
+                                <button type="submit" id="submitButton" class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md">Registrar Evento</button>
                             </div>
 
                             <div class="flex items-center justify-end mt-4 ml-4">
@@ -708,6 +724,20 @@
         });
     });
 </script>
+
+<script>
+    document.getElementById('submitButton').addEventListener('click', function(event) {
+        var checkbox = document.getElementById('agreeTerms');
+        var errorMessage = document.getElementById('termsError');
+        
+        if (!checkbox.checked) {
+            errorMessage.style.display = 'block'; // Mostrar el mensaje de error
+            event.preventDefault(); // Prevenir que el formulario se envíe
+        } else {
+            errorMessage.style.display = 'none'; // Ocultar el mensaje de error
+        }
+    });
+    </script>
 
 
 
