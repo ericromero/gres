@@ -21,6 +21,55 @@
                 {{ session('error') }}
             </div>
         @endif
+
+        <!-- Contenedor de filtros -->
+        <div class="my-2">
+            <button id="toggleFiltersBtn" class="bg-orange-500 px-4 py-2 text-white rounded">Filtros</button>
+            <div id="filtersContainer" style="display: none;" class="border border-gray-700 p-2 m-2">
+                <form action="{{ route('event_spaces.review.filter') }}" method="POST">
+                    @csrf
+                    <!-- Bloque de ordenamiento -->
+                    <div>
+                        <h3 class="font-semibold">Orden de aparición de los eventos</h3>
+                        <label for="orderBy">Ordenar por:</label>
+                        <select name="orderBy" id="orderBy">
+                            <option value="title">Título</option>
+                            <option value="start_date">Fecha</option>
+                        </select>
+                        <select name="orderByType" id="orderBy">
+                            <option value="asc">Ascendente</option>
+                            <option value="desc">Descendente</option>
+                        </select>
+                    </div>
+
+                    <!-- Bloque de filtrado por campo -->
+                    <div class="p-2">
+                        <h3 class="font-semibold">Búsqueda por campo</h3>
+                        <label for="searchByField">Criterios de búsqueda:</label>
+                        <select name="searchByField" id="searchByField">
+                            <option value="title">Título</option>
+                            <option value="summary">Resumen</option>
+                        </select>
+                        
+                        <input type="text" name="searchBy" id="searchBy">
+                    </div>
+
+                    <!-- Bloque de filtrado por fecha -->
+                    <div class="p-2">
+                        <h3 class="font-semibold">Limitar a eventos en este periodo: <span class="text-sm text-gray-600 dark:text-gray-300"> (estos dos campos son opcionales)</span></h3>
+                        <label for="searchByStartDate">A partir del día</label>
+                        <input type="date" name="searchByStartDate" id="searchByStartDate" />
+                        <label for="searchByEndDate"> y/o a más tardar el día</label>
+                        <input type="date" name="searchByEndDate" id="searchByEndDate" />
+                    </div>
+
+                    <div>
+                        <button type="submit" class="bg-blue-500 px-4 py-2 text-white rounded">Aplicar filtros</button>
+                        <a href="{{ route('event_spaces.review') }}" class="bg-red-500 px-4 py-2 text-white rounded">Borrar filtros</a>
+                    </div>
+                </form>
+            </div>
+        </div>
         
         @if ($events->isEmpty())
             <div class="text-center">
@@ -67,18 +116,24 @@
                             <h2 class="text-xl font-semibold mb-2 text-slate-100 dark:text-slate-700">{{ $event->title }}</h2>
                         </div>
                         
-
-                        @if ($event->cover_image==null)                            
-                            <img src="{{asset('images/unam.png')}}" alt="No se ha subido el cartel" class="m-2 w-20 h-20 object-cover bg-slate-300">
-                            <br>No se ha subido el cartel del evento.
+                        @if($event->private==1)
+                            <div class="text-lg font-semibold text-amber-600 dark:text-amber-300">
+                                Evento interno
+                            </div>
                         @else
-                            <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-20 h-20 object-cover cursor-pointer" onclick="window.open('{{ asset($event->cover_image) }}')">
-                        
+                            @if ($event->cover_image==null)                            
+                                <img src="{{asset('images/unam.png')}}" alt="No se ha subido el cartel" class="m-2 w-20 h-20 object-cover bg-slate-300">
+                                <br>No se ha subido el cartel del evento.
+                            @else
+                                <img src="{{asset($event->cover_image)}}" alt="{{ $event->title }}" class="w-20 h-20 object-cover cursor-pointer" onclick="window.open('{{ asset($event->cover_image) }}')">
+                            @endif
                         @endif
                         
                         
                         <div class="p-4">
-                            <p class="mb-2">{{ $event->summary }}</p>
+                            @if($event->private!=1)
+                                <p class="mb-2">{{ $event->summary }}</p>
+                            @endif
                             
                             <p><strong>Espacios solicitados:</strong>
                                 @foreach($event->spaces as $event_space)
@@ -92,43 +147,41 @@
                             <p><strong>Fecha:</strong> Del {{ $event->start_date }} al {{ $event->end_date }}</p>
                             <p><strong>Horario:</strong> De {{ $event->start_time }} a {{ $event->end_time }}</p>                                                        
                             
-                            @if ($event->registration_url!=null)
-                                <p><strong>Registro:</strong><a href="{{ $event->registration_url }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->registration_url }}</a></p>
-                            @else
-                                <p><strong>Registro:</strong>No se requiere</p>
-                            @endif
+                            @if($event->private!=1)
+                                @if ($event->registration_url!=null)
+                                    <p><strong>Registro:</strong><a href="{{ $event->registration_url }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->registration_url }}</a></p>
+                                @else
+                                    <p><strong>Registro:</strong>No se requiere</p>
+                                @endif
+                            
+                                <!-- Información de contacto -->
+                                @if ($event->contact_email!=null)
+                                    <p><strong>Correo electrónico de contacto:</strong><a href="mailto:{{ $event->contact_email }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->contact_email }}</a></p>
+                                @endif
 
-                            @if ($event->program)
-                                <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline" download>Descargar Programa</a></p>
+                                <!-- Sitio web sobre el evento -->
+                                @if ($event->website!=null)
+                                    <p><strong>Sitio web del evento:</strong><a href="{{ $event->website }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->website }}</a></p>
+                                @endif
+
+                                <!-- Requisitos adicionales-->
+                                @if ($event->requirements!=null)
+                                    <p><strong>Requisitos para el evento:</strong> {{ $event->requirements }}</p>
+                                @endif
+
+                                <!-- Verificación del uso de recursos -->
+                                @if($event->resources->isNotEmpty())
+                                    <p><strong>Recursos/equipo solicitados:</strong></p>
+                                    <ul>
+                                        @foreach ($event->resources as $resource)
+                                            <li class="ml-2">- {{ $resource->name }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
                             @endif
 
                             @if($rechazado)
                                 <p><strong>Motivo de rechazo:</strong> {{ $motivo }}</p>
-                            @endif
-
-                            <!-- Información de contacto -->
-                            @if ($event->contact_email!=null)
-                                <p><strong>Correo electrónico de contacto:</strong><a href="mailto:{{ $event->contact_email }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->contact_email }}</a></p>
-                            @endif
-
-                            <!-- Sitio web sobre el evento -->
-                            @if ($event->website!=null)
-                                <p><strong>Sitio web del evento:</strong><a href="{{ $event->website }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->website }}</a></p>
-                            @endif
-
-                            <!-- Requisitos adicionales-->
-                            @if ($event->requirements!=null)
-                                <p><strong>Requisitos para el evento:</strong> {{ $event->requirements }}</p>
-                            @endif
-
-                            <!-- Verificación del uso de recursos -->
-                            @if($event->resources->isNotEmpty())
-                                <p><strong>Recursos/equipo solicitados:</strong></p>
-                                <ul>
-                                    @foreach ($event->resources as $resource)
-                                        <li class="ml-2">- {{ $resource->name }}</li>
-                                    @endforeach
-                                </ul>
                             @endif
 
 
@@ -163,3 +216,18 @@
     </div>
 
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
+        const filtersContainer = document.getElementById('filtersContainer');
+
+        toggleFiltersBtn.addEventListener('click', function() {
+            if (filtersContainer.style.display === 'none') {
+                filtersContainer.style.display = 'block';
+            } else {
+                filtersContainer.style.display = 'none';
+            }
+        });
+    });
+</script>

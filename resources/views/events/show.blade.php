@@ -47,6 +47,12 @@
                 <h2 class="text-lg font-semibold">Información general:</h2>
             </div>
 
+            @if($event->private==1)
+                <div class="my-4 text-lg font-semibold text-amber-600 dark:text-amber-300">
+                    Evento interno
+                </div>
+            @endif
+
             <div class="mt-4">
                 {{-- <p><strong>Responsable:</strong> {{ $event->responsible->name }}</p> --}}
                 <p><strong>Fecha:</strong> {{ $event->start_date }}
@@ -69,31 +75,33 @@
                 </div>
             @endif                                     --}}
 
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold">Registro:</h3>
-                @if ($event->registration_url!=null)
-                    @if ($event->start_time > now() )
-                        <a href="{{ $event->registration_url }}" class="mt-2 block text-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Registrarse</a>
+            @if($event->private!=1)
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold">Registro:</h3>
+                    @if ($event->registration_url!=null)
+                        @if ($event->start_time > now() )
+                            <a href="{{ $event->registration_url }}" class="mt-2 block text-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Registrarse</a>
+                        @else
+                        {{ $event->registration_url }}
+                        @endif
                     @else
-                    {{ $event->registration_url }}
+                        Entrada libre
                     @endif
-                @else
-                    Entrada libre
+                </div>
+
+                @if ($event->contact_email)
+                    <div class="mt-4">
+                        <h2 class="text-lg font-semibold">Correo electrónico de contacto:</h2>
+                        <p><a class="text-blue-900 dark:text-blue-300" href="mailto:{{$event->contact_email }}">{{$event->contact_email }}</a></p>
+                    </div>
+                @endif 
+
+                @if ($event->website)
+                    <div class="mt-4">
+                        <h2 class="text-lg font-semibold">Sitio web del evento:</h2>
+                        <p><a class="text-blue-900 dark:text-blue-300" href="{{$event->website }}" target="_blank">{{ $event->website }}</a></p>
+                    </div>
                 @endif
-            </div>
-
-            @if ($event->contact_email)
-                <div class="mt-4">
-                    <h2 class="text-lg font-semibold">Correo electrónico de contacto:</h2>
-                    <p><a class="text-blue-900 dark:text-blue-300" href="mailto:{{$event->contact_email }}">{{$event->contact_email }}</a></p>
-                </div>
-            @endif 
-
-            @if ($event->website)
-                <div class="mt-4">
-                    <h2 class="text-lg font-semibold">Sitio web del evento:</h2>
-                    <p><a class="text-blue-900 dark:text-blue-300" href="{{$event->website }}" target="_blank">{{ $event->website }}</a></p>
-                </div>
             @endif
 
             {{-- @if ($event->requirements)
@@ -106,52 +114,57 @@
         </div>
         
         
-        <!-- Recursos solicitados y Lista de participantes -->
+        <!-- Tercera columna: Recursos solicitados y Lista de participantes -->
         <div class="p-6 m-2 border {{ $event->cancelled=='1'? 'border-red-800 dark:border-red-300':'border-gray-700 dark:border-gray-300' }}">
-            <!-- Lista de recursos -->
-            @if($event->resources->isNotEmpty())
-            <div class="m-2">
-                <h3 class="text-lg font-semibold">Recursos/equipo solicitados</h3>
-                <ul>
-                    @foreach ($event->resources as $resource)
-                        <li class="ml-2">- {{ $resource->name }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <!-- Lista de participantes -->
-            <div class="m-2">
-                <h3 class="text-lg font-semibold">Participantes</h3>
-                @if ($participants!=null&&$participants->count() > 0)
-                    <table class="border border-gray-700 dark:border-gray-300">
-                        <thead class="bg-gray-300 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-4 py-2">Nombre completo</th>
-                                <th class="px-4 py-2">Tipo de participación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($participants as $participant)
-                                <tr>
-                                    <td class="px-4 py-2">
-                                        @if($participant->user_id!=null)
-                                            {{ $participant->user->degree }}
-                                        @endif 
-                                        {{ $participant->fullname }}
-                                    </td>
-                                    <td class="px-4 py-2">{{ $participant->participationType->name }}</td>
-                                    
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <p>No hay participantes agregados al evento.</p>
+            @if($event->private!=1)    
+                <!-- Lista de recursos -->
+                @if($event->resources->isNotEmpty())
+                <div class="m-2">
+                    <h3 class="text-lg font-semibold">Recursos/equipo solicitados</h3>
+                    <ul>
+                        @foreach ($event->resources as $resource)
+                            <li class="ml-2">- {{ $resource->name }}</li>
+                        @endforeach
+                    </ul>
+                </div>
                 @endif
-            </div>
-            
+
+                <!-- Lista de participantes -->
+                <div class="m-2">
+                    <h3 class="text-lg font-semibold">Participantes</h3>
+                    @if ($participants!=null&&$participants->count() > 0)
+                        <table class="border border-gray-700 dark:border-gray-300">
+                            <thead class="bg-gray-300 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2">Nombre completo</th>
+                                    <th class="px-4 py-2">Tipo de participación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($participants as $participant)
+                                    <tr>
+                                        <td class="px-4 py-2">
+                                            @if($participant->user_id!=null)
+                                                {{ $participant->user->degree }}
+                                            @endif 
+                                            {{ $participant->fullname }}
+                                        </td>
+                                        <td class="px-4 py-2">{{ $participant->participationType->name }}</td>
+                                        
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else                        
+                        <p>No hay participantes agregados al evento.</p>
+                    @endif
+                </div>
+            @else
+                <h3 class="text-lg font-semibold">Participantes</h3>
+                <p>No hay participantes registrados.</p>
+            @endif    
         </div>
+        
     
         <!-- Botón de regreso -->
         <div class="my-4">

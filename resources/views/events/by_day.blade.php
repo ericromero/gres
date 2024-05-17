@@ -23,7 +23,7 @@
             @endif
         </div>
         
-        <!-- Formulario del buscador así como el calendario con eventos ya reservados -->
+        <!-- Calendario con eventos ya reservados -->
         <div class="P-4">
                        
             <div class="mx-2 p-2 border border-slate-400">
@@ -41,9 +41,6 @@
         </div>
     </div>
 
-    
-
-
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 <script src='fullcalendar/core/locales/es.global.js'></script>
 <script>
@@ -57,7 +54,7 @@
         nowIndicator: true,
         today:    'Día de hoy',
         events:@json($events),
-        eventColor: '#551575',
+        eventColor: '#fbd5ff',
         eventTimeFormat: {
             hour: 'numeric',
             minute: '2-digit',

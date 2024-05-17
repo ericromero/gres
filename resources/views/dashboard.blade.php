@@ -42,7 +42,7 @@
                     </a>
                 @endhasrole --}}
 
-                <!-- Imagen y enlace para gestionar usuarios -->
+                <!-- usuarios -->
                 @hasrole('Administrador')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">                        
                         <div>
@@ -57,7 +57,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para gestionar departamentos -->
+                <!-- Departamentos -->
                 @hasrole('Administrador')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -72,7 +72,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para gestionar espacios -->
+                <!-- Espacios -->
                 @hasrole('Administrador')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -87,7 +87,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para consultar espacios -->
+                <!-- Mis espacios y recursos -->
                 @hasanyrole('Coordinador|Gestor de espacios')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -102,7 +102,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para contruir el equipo de trabajo -->
+                <!-- Equipo de trabajo -->
                 @hasanyrole('Administrador|Coordinador')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -124,7 +124,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para revisar la agenda de día -->
+                <!-- Eventos del día -->
                 @hasanyrole('Coordinador|Gestor de eventos')
                 <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                     <div>
@@ -152,7 +152,7 @@
                 </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para crear un nuevo evento -->
+                <!-- Registrar evento -->
                 @hasanyrole('Coordinador|Gestor de eventos')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -167,7 +167,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace para revisar los eventos solicitados por la coordinación -->
+                <!-- Eventos de la coordinación -->
                 @hasanyrole('Coordinador|Gestor de eventos')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -208,7 +208,7 @@
                     </div>
                 @endhasrole
                 
-                <!-- Imagen y enlace a los espacios solicitados por la coordinación -->
+                <!-- Espacios solicitados -->
                 @hasrole('Gestor de espacios')
                     <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
@@ -236,7 +236,7 @@
                     </div>
                 @endhasrole
 
-                <!-- Imagen y enlace Mis eventos -->
+                <!-- Mis eventos -->
                 <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                 
                     <div>
