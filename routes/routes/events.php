@@ -16,8 +16,15 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     // Ruta para guardar el nuevo evento en la base de datos
     Route::post('/eventos/guardar', [EventController::class, 'store'])->name('events.store');
 
+
+    // Ruta para guardar el nuevo evento en la base de datos
+    Route::post('/eventos/guardar/evento-interno', [EventController::class, 'storePrivate'])->name('events.store.private');
+
     //Ruta para acceder a la creación de eventos
     Route::get('/evento/nuevo', [EventController::class,'create'])->name('events.create');
+
+    //Ruta para acceder a la creación de eventos privados
+    Route::post('/events/create-with-space/private', [EventController::class, 'createWithSpace'])->name('events.createwithSpace.private');
 
     //Ruta para acceder a la creación de eventos
     //Route::post('/evento/nuevo', [EventController::class,'create'])->name('events.create');
@@ -38,10 +45,10 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     Route::get('/eventos/area', [EventController::class,'by_area'])->name('events.byArea');
 
     // Lista los eventos generados por el área aplicando filtro
-    Route::post('/eventos/area/filtred', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
+    Route::post('/eventos/area/filtered', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
     
     // Lista los eventos generados por el área aplicando filtro
-    Route::get('/eventos/area/filtred', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
+    Route::get('/eventos/area/filtered', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
 
     // Eventos del área que se encuentran en estatus de borrador
     Route::get('/eventos/area/borrador',[EventController::class,'by_area_drafts'])->name('events.byArea.drafts');
@@ -83,8 +90,11 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
 
 
 Route::middleware(['role:Coordinador|Gestor de espacios'])->group(function () {
-    // Ruta para encontrar disponibilidad de horario para reservar
+    // Muestra los eventos del día de un area específica
     Route::get('/eventos/agenda', [EventController::class, 'byDay'])->name('events.byDay');
+
+    // Muestra los eventos del día de todas las áreas
+    Route::get('/eventos/agenda/completa', [EventController::class, 'byDayAll'])->name('events.byDayAll');
 
 });
 

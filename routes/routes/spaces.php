@@ -17,7 +17,7 @@ Route::middleware(['role:Administrador|Coordinador|Gestor de eventos'])->group(f
 });
 
 Route::middleware(['role:Coordinador|Gestor de espacios'])->group(function () {
-    // Ruta para mostrar la lista de espacios
+    // Mostrar la lista de espacios
     Route::get('/mis_espacios', [SpaceController::class, 'my_spaces'])->name('spaces.my-spaces');
 
 });
@@ -48,6 +48,9 @@ Route::middleware(['role:Administrador'])->group(function () {
 
 Route::middleware(['role:Administrador|Coordinador|Gestor de espacios'])->group(function () {
     // Cambiar la disponibilidad de un espacio
-    Route::put('/spaces/{space}/toggle-availability', [SpaceController::class, 'toggleAvailability'])
-     ->name('spaces.toggleAvailability');
+    Route::put('/spaces/{space}/toggle-availability', [SpaceController::class, 'toggleAvailability'])->name('spaces.toggleAvailability');
+
+    // actualizar el documento de términos de un espacio
+    Route::put('/spaces/terms/{space}', [SpaceController::class, 'updateTerms'])->name('spaces.updateTerms');
+    
 });

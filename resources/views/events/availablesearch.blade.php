@@ -34,8 +34,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-2">
                 
                     @if($availableSpaces->count()>0)
+                        @php
+                            $i=0;
+                        @endphp
                         @foreach($availableSpaces as $space)
                             <div class="overflow-hidden shadow-md rounded-lg border border-gray-700 dark:border-gray-300">
+                                
                                 <img src="{{ asset($space->photography) }}" alt="Imagen del espacio" class="w-full h-40 object-cover">
                                 <div class="p-4">
                                     <h3 class="text-lg font-semibold">{{ $space->name }}</h3>
@@ -61,8 +65,11 @@
                                         <input type="hidden" name="end_date" value="{{ $end_date }}">
                                         <input type="hidden" name="start_time" value="{{ $start_time }}">
                                         <input type="hidden" name="end_time" value="{{ $end_time }}">
+                                        
+                                        <input type="checkbox" name="private" id="private{{ $i }}">
+                                        <label for="private{{ $i++ }}" class="ml-2">Hacer reserva rápida</label>
                                 
-                                        <button type="submit" class="block mb-4 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
+                                        <button type="submit" class="block mb-4 mt-2 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
                                             Seleccionar este espacio
                                         </button>
                                     </form>

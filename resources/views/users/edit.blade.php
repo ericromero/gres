@@ -11,6 +11,14 @@
             @method('PUT')
 
             <div class="mb-4">
+                <label for="name" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Nombre completo: <span class="text-sm text-gray-700 dark:text-gray-300">(Comenzando por nombre seguido de apellidos)</span></label>
+                <input type="name" name="name" id="name" value="{{ $user->name }}" class="form-input dark:bg-gray-800 dark:text-white">
+                @error('name')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
+            </div>   
+
+            <div class="mb-4">
                 <label for="degree" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Grado académico actual: {{$user->degree}}</label>
                 <select name="degree" id="degree" class="form-input dark:bg-gray-800 dark:text-white" required>
                     <option value="{{$user->degree}}" selected>{{ $user->degree }}</option>
@@ -28,6 +36,9 @@
             <div class="mb-4">
                 <label for="email" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Correo electrónico:</label>
                 <input type="email" name="email" id="email" value="{{ $user->email }}" class="form-input dark:bg-gray-800 dark:text-white">
+                @error('email')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
             </div>                        
 
             <div class="mb-4">

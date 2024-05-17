@@ -11,11 +11,12 @@ use App\Mail\UnauthorizeEventMail;
 use App\Mail\authorizeEventMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Carbon;
 
 class EventSpaceController extends Controller
 {
     public function index() {
-
         // Paso 1: Obtener el ID del departamento del usuario autenticado
         $usuarioDepartamentoId = Auth::user()->team->department_id;        
 
@@ -27,7 +28,104 @@ class EventSpaceController extends Controller
             ->select('events.*') // Seleccionar todos los campos de la tabla events
             ->paginate(8);
 
+            // Convertir fechas numéricas a texto
+        foreach ($events as $event) {
+            $event->start_date=$this->getStringDate($event->start_date);
+            $event->end_date=$this->getStringDate($event->end_date);
+        }
+
         return view('eventspaces.index',compact('events'));
+    }
+
+    public function indexFilter(Request $request) {
+        // Definir reglas de validación
+        $rules = [
+            'orderBy' => 'required|string|in:title,start_date',
+            'orderByType' => 'required|string|in:asc,desc',
+            'searchByField' => 'required|string|in:title,summary',
+            'searchBy' => 'nullable|string|max:255',
+        ];
+
+        // Definir mensajes de error personalizados
+        $messages = [
+            'orderBy.required' => 'El campo Ordenar por es obligatorio.',
+            'orderBy.string' => 'El campo Ordenar por debe ser una cadena de texto.',
+            'orderBy.in' => 'El valor del campo Ordenar por es inválido.',
+            'orderByType.required' => 'El campo Tipo de orden es obligatorio.',
+            'orderByType.string' => 'El campo Tipo de orden debe ser una cadena de texto.',
+            'orderByType.in' => 'El valor del campo Tipo de orden es inválido.',
+            'searchByField.required' => 'El campo Búsqueda por campo es obligatorio.',
+            'searchByField.string' => 'El campo Búsqueda por campo debe ser una cadena de texto.',
+            'searchByField.in' => 'El valor del campo Búsqueda por campo es inválido.',
+            'searchBy.string' => 'El campo Búsqueda por debe ser una cadena de texto.',
+            'searchBy.max' => 'El campo Búsqueda por no debe exceder los :max caracteres.',
+        ];
+
+        // Validar la solicitud con las reglas y mensajes definidos
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+
+        // Verificar si la validación ha fallado
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Paso 1: Obtener el ID del departamento del usuario autenticado
+        $usuarioDepartamentoId = Auth::user()->team->department_id;
+
+        // Paso 2: Obtener todos los eventos solicitados del departamento del usuario
+        $events = Event::join('event_spaces', 'events.id', '=', 'event_spaces.event_id')
+            ->join('spaces', 'event_spaces.space_id', '=', 'spaces.id')
+            ->where('spaces.department_id', $usuarioDepartamentoId)
+            ->whereNot('events.status', 'borrador')
+            ->select('events.*');
+
+        // Aplicar filtros de ordenamiento si se han enviado
+        if ($request->has('orderBy')&&$request->has('orderByType')) {
+            $orderBy = $request->orderBy;
+            if (!empty($orderBy)) {
+                $events->orderBy($request->orderBy, $request->orderByType);
+            }
+        }
+
+        // Aplicar filtros por campo si los hay
+        if ($request->has('searchBy')&&$request->has('searchByField')) {
+            $searchBy = $request->searchBy;
+            if (!empty($searchBy)) {
+                $events->where($request->searchByField,'like', '%' . $request->searchBy . '%');
+            }
+        }
+
+        // Aplicar filtros por fecha de inicio si lo hay
+        if ($request->has('searchByStartDate')) {
+            $searchByStartDate = $request->searchByStartDate;
+            if (!empty($searchByStartDate)) {
+                $events->where('start_date','>=', $searchByStartDate);
+            }
+        }
+
+        // Aplicar filtros por fecha de término si lo hay
+        if ($request->has('searchByEndDate')) {
+            $searchByEndDate = $request->searchByEndDate;
+            if (!empty($searchByEndDate)) {
+                $events->where('end_date','<=', $searchByEndDate);
+            }
+        }
+
+        // Paginar los resultados
+        $events = $events->paginate(8);
+
+        // Convertir fechas numéricas a texto
+        foreach ($events as $event) {
+            $event->start_date=$this->getStringDate($event->start_date);
+            $event->end_date=$this->getStringDate($event->end_date);
+        }
+    
+        // Mantener los parámetros de filtro en el paginador
+        $events->appends($request->except('page'));
+    
+        // Devolver la vista con los eventos
+        return view('eventspaces.index', compact('events'));
     }
 
     public function awaitingRequests() {
@@ -41,7 +139,13 @@ class EventSpaceController extends Controller
             ->where('spaces.department_id', $usuarioDepartamentoId)
             ->where('events.status', 'solicitado')
             ->select('events.*') // Seleccionar todos los campos de la tabla events
-            ->paginate();
+            ->paginate(8);
+        
+        // Convertir fechas numéricas a texto
+        foreach ($events as $event) {
+            $event->start_date=$this->getStringDate($event->start_date);
+            $event->end_date=$this->getStringDate($event->end_date);
+        }
 
         return view('eventspaces.index',compact('events'));
     }
@@ -83,6 +187,10 @@ class EventSpaceController extends Controller
         if($event->status!='solicitado') {
             return redirect()->route('event_spaces.review')->with('error', 'Acceso ilegal, la solicitud ha habia sido atendida.');
         }
+
+        // Convertir fechas numéricas a texto
+        $event->start_date=$this->getStringDate($event->start_date);
+        $event->end_date=$this->getStringDate($event->end_date);
 
         return view('eventspaces.reject',compact('event'));
     }
@@ -130,6 +238,10 @@ class EventSpaceController extends Controller
         Mail::to($responsible)->send($mail);        
 
         return redirect()->route('event_spaces.review')->with('success', 'La solicitud ha sido rechazada.');
+    }
+
+    private function getStringDate($date) {
+        return Carbon::parse($date)->isoFormat('dddd D [de] MMMM [de] YYYY');
     }
 
 }

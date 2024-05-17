@@ -18,6 +18,7 @@ class Space extends Model
         'availability',
         'photography',
         'department_id',
+        'terms',
     ];
 
     // Relación con el modelo Department

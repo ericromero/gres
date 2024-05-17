@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl leading-tight text-gray-800 dark:text-gray-200">
-            {{ __('Crear Evento') }}
+            {{ __('Crear evento rápido') }}
         </h2>
 
         {{-- Código para el manejo de notificaciones --}}
@@ -16,7 +16,7 @@
         @endif
 
         <div class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-            <p>Ingresa toda la información de tu evento, en caso de que se requiera realizar el registro, escribe la URL de la herramienta de registro.</p>        
+            <p>Ingresa la información mínima de tu evento privado o interno.</p>        
         </div>
     </x-slot>
 
@@ -24,7 +24,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="overflow-hidden shadow-sm sm:rounded-lg">                
                 <div class="p-2">
-                    <form action="{{ route('events.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('events.store.private') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div>
@@ -59,7 +59,8 @@
                         </div>
 
                         <!-- Tipo de evento -->
-                        <div class="mb-4">
+                        <input type="hidden" name="event_type_id" value="1">
+                        {{-- <div class="mb-4">
                             <label for="event_type_id" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Tipo de Evento: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="En caso de no encontrar el tipo de Evento adecuado, selecciona la opción Otro e ingresa la información correspondiente.">?</span></label>
                             <select name="event_type_id" id="event_type_id" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('event_type_id') border-red-500 @enderror" required>
                                 <option value="">Seleccionar tipo de evento</option>
@@ -71,10 +72,10 @@
                             @error('event_type_id')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
-                        </div>
+                        </div> --}}
                         
                         <!-- Otro espacio solicitado  -->
-                        <div class="mb-4" id="other-container">
+                        {{-- <div class="mb-4" id="other-container">
                             <label for="other" class="block dark:text-gray-300 font-bold mb-2">Indica que tipo de evento: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="No debe exceder los 250 caracteres incluyendo espacios en blanco.">?</span></label>
                             <input type="text" name="other" id="other" maxlength="250" class="w-full form-input dark:bg-gray-800 dark:text-white @error('other') border-red-500 @enderror" value="{{ old('other') }}">
                             
@@ -95,7 +96,7 @@
                             @error('category')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
-                        </div>
+                        </div> --}}
 
                         <!-- Título -->
                         <div class="mb-4">
@@ -162,103 +163,6 @@
                             </div>
                         </div>
 
-                        <!-- Corresponsable -->
-                        <div class="my-2 p-2 border border-gray-700 dark:border-gray-300">                            
-                            <div class="mb-4">
-                                <label for="coresponsible" class="block font-bold mb-2">Corresponsable: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="En caso de que el (la) responsable no pueda continuar con la organización del evento, el(la) corresponsable dará continuidad a la organización del evento.">?</span></label>
-                                <select name="coresponsible" id="coresponsible" class="js-example-basic-single form-select dark:bg-gray-800 dark:text-white @error('coresponsible') border-red-500 @enderror" required>
-                                    <option value="">Seleccionar corresponsable</option>
-                                    <option value="other_coresponsible" {{ old('coresponsible') == 'other_coresponsible' ? 'selected' : '' }}>Otro(a) corresponsable</option>
-                                    @foreach($academicos as $academico)
-                                        <option value="{{ $academico->id }}" {{ old('coresponsible') == $academico->id ? 'selected' : '' }}>{{ $academico->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('coresponsible')
-                                    <p class="text-red-500 text-sm">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Otro coresponsable -->
-                            <div class="mt-2" id="other-coresponsible-container" style="{{ $errors->has('coresponsible') ? 'display: block;' : 'display: none;' }}">
-                                <label for="degree_coresponsible" class="block font-bold mb-2">Grado académico
-                                    <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Seleciona el grado académico.">?</span>
-                                </label>
-                                <select name="degree_coresponsible" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('degree_coresponsible') border-red-500 @enderror" id="degree_coresponsible" placeholder="Grado del académico(a)">
-                                    <option value="">Selecciona el grado académico</option>
-                                    <option value="C." {{ old('degree_coresponsible') == 'C.' ? 'selected' : '' }}>C.</option>
-                                    <option value="Lic." {{ old('degree_coresponsible') == 'Lic.' ? 'selected' : '' }}>Lic.</option>
-                                    <option value="Ing." {{ old('degree_coresponsible') == 'Ing.' ? 'selected' : '' }}>Ing.</option>
-                                    <option value="Mtro." {{ old('degree_coresponsible') == 'Mtro.' ? 'selected' : '' }}>Mtro.</option>
-                                    <option value="Mtra." {{ old('degree_coresponsible') == 'Mtra.' ? 'selected' : '' }}>Mtra.</option>
-                                    <option value="Dr." {{ old('degree_coresponsible') == 'Dr.' ? 'selected' : '' }}>Dr.</option>
-                                    <option value="Dra." {{ old('degree_coresponsible') == 'Dra.' ? 'selected' : '' }}>Dra.</option>
-                                </select>
-                                
-                                @error('degree_coresponsible')
-                                    <p class="text-red-500 text-sm">{{ $message }}</p>
-                                @enderror
-
-                                <label for="other_coresponsible_name" class="block font-bold mb-2">Nombre completo del(la) corresponsable, comenzando por nombre y después apellidos.<span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Escribe el grado y nombre completo del académico comenzando por apellidos, por ejemplo Mtro. Eric Romero Martínez.">?</span></label>
-                                <input type="text" name="other_coresponsible_name" id="other_coresponsible_name" class="w-full form-input dark:bg-gray-800 dark:text-white @error('other_coresponsible_name') border-red-500 @enderror" value="{{ old('other_coresponsible_name') }}">
-                                @error('other_coresponsible_name')
-                                    <p class="text-red-500 text-sm">{{ $message }}</p>
-                                @enderror
-                                <p class="text-gray-500 dark:text-gray-300 text-sm">Caracteres restantes: <span id="char-count-other-coresponsible-name">250</span></p>
-                                
-                                <label for="email_coresponsible" class="block font-bold mb-2">Correo electrónico del académico(a) <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Escribe el correo electrónico del académico. Se generará una nueva contraseña y se le enviará por correo electrónico para dar seguimiento a la publicación de su evento.">?</span></label>
-                                <input type="text" name="email_coresponsible" id="email_coresponsible" class="w-full form-input dark:bg-gray-800 dark:text-white @error('email_coresponsible') border-red-500 @enderror" value="{{ old('email_coresponsible') }}">
-                                @error('email_coresponsible')
-                                    <p class="text-red-500 text-sm">{{ $message }}</p>
-                                @enderror
-
-                                {{-- <input type="checkbox" name="external_coresponsible" class="my-4 input-checkbox dark:bg-gray-800 dark:text-white" ><label for="external_coresponsible" class="ml-2 font-bold mb-2">Selecciona esta opción si el académico es externo a la entidad</label>
-                                @error('external_coresponsible')
-                                    <p class="text-red-500 text-sm">{{ $message }}</p>
-                                @enderror --}}
-                            </div>
-                        </div>
-
-                        <!-- Resumen -->
-                        <div class="mb-4">
-                            <label for="summary" class="block font-bold mb-2">Resumen: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Agrega un resumen y/o información adicional para el público interesado en el evento, como máximo se admiten 500 caracteres.">?</span></label>
-                            <textarea name="summary" id="summary" maxlength="500" rows="4" class="w-full form-textarea dark:bg-gray-800 dark:text-white @error('summary') border-red-500 @enderror" required>{{ old('summary') }}</textarea>
-                            @error('summary')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                            <p class="text-gray-500 dark:text-gray-300 text-sm">Caracteres restantes: <span id="char-count-summary">500</span></p>
-                        </div>
-
-                        <!-- Correo de contacto -->
-                        <div class="mb-4">
-                            <label for="contact_email" class="block dark:text-gray-300 font-bold mb-2">Correo de contacto: <span class="text-sm">(campo opcional)</span><span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Correo electrónico público al que se puede solicitar mayor información.">?</span></label>
-                            <input type="email" name="contact_email" id="contact_email" class="w-full form-input dark:bg-gray-800 dark:text-white @error('contact_email') border-red-500 @enderror" value="{{ old('contact_email') }}">
-                            
-                            @error('contact_email')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Sitio web -->
-                        <div class="mb-4">
-                            <label for="website" class="block dark:text-gray-300 font-bold mb-2">Sitio web: <span class="text-sm">(campo opcional, comience con http o https)</span><span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si cuenta con un sitio web específico del evento, puede difundirlo a través de este enlace.">?</span></label>
-                            <input type="text" name="website" id="website" class="w-full form-input dark:bg-gray-800 dark:text-white @error('website') border-red-500 @enderror" value="{{ old('website') }}" placeholder="http://...">
-                            
-                            @error('website')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Requisitos adicionales -->
-                        <div class="mb-4">
-                            <label for="requirements" class="block font-bold mb-2">Requisitos adicionales: 
-                                <span class="text-sm">(campo opcional, información adicional sobre el uso del espacio)</span>
-                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requieres algo adicional como un acomodo de sillones, mesas, sillas, ect. descríbelo en este apartado.">?</span></label>
-                            <textarea name="requirements" id="requirements" maxlength="500" rows="4" class="w-full form-textarea dark:bg-gray-800 dark:text-white @error('requirements') border-red-500 @enderror">{{ old('requirements') }}</textarea>
-                            @error('requirements')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                            <p class="text-gray-500 dark:text-gray-300 text-sm">Caracteres restantes: <span id="char-count-requirements">500</span></p>
-                        </div>
 
                         <!-- Fechas y horarios -->
                         <div class="flex">
@@ -292,7 +196,8 @@
                         </div>
 
                         <!-- Audiencia -->
-                        <div class="mb-4">
+                        <input type="hidden" name="audience" value="1">
+                        {{-- <div class="mb-4">
                             <label for="audience" class="block font-bold mb-2">Audiencia: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                 data-tippy-content="Selecciona a quién va dirigido el evento.">?</span>
                             </label>
@@ -305,84 +210,11 @@
                             @error('audience')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
-                        </div>
-
-                        <!-- Modalidad -->
-                        <div class="mb-4">
-                            <label for="modality" class="block font-bold mb-2">Modalidad: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
-                                data-tippy-content="<strong>A distancia:</strong> Modalidad de enseñanza-aprendizaje no presencial. Emplea medios de comunicación remota entre el alumnado y la profesora o el profesor.
-                                                    <br><strong>Presencial:</strong> Se refiere a la actividad de impartir clase a un grupo de estudiantes en instalaciones universitarias, estando presentes tanto la profesora o el profesor, así como el alumnado.
-                                                    <br><strong>Mixta: </strong>Es una forma híbrida en la cual la modalidad educativa presencial se mezcla con multimedios que facilitan el aprendizaje de los estudiantes a su propio ritmo, con altos grados de flexibilidad y sin restricción de tiempo ni espacio.
-                                ">?</span>
-                            </label>
-                            <select name="modality" id="modality" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('modality') border-red-500 @enderror" required>
-                                <option value="">Selecciona la modalidad</option>
-                                <option value="Presencial" {{ old('modality') == 'Presencial' ? 'selected' : '' }}>Presencial</option>
-                                <option value="En línea" {{ old('modality') == 'En línea' ? 'selected' : '' }}>En línea</option>
-                                <option value="Mixta" {{ old('modality') == 'Mixta' ? 'selected' : '' }}>Mixta</option>
-                            </select>
-                            @error('modality')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- Alcance -->
-                        <div class="mb-4">
-                            <label for="scope" class="block font-bold mb-2">Alcance: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
-                                data-tippy-content="Selecciona el alcance del evento.">?</span>
-                            </label>
-                            <select name="scope" id="scope" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('scope') border-red-500 @enderror" required>
-                                <option value="">Selecciona el alcance</option>
-                                <option value="Nacional" {{ old('scope') == 'Nacional' ? 'selected' : '' }}>Nacional</option>
-                                <option value="Internacional" {{ old('scope') == 'Internacional' ? 'selected' : '' }}>Internacional</option>
-                            </select>
-                            @error('scope')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Tipo de proyecto -->
-                        <div class="mb-4">
-                            <label for="project_type" class="block font-bold mb-2">Tipo de proyecto: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
-                                data-tippy-content="<strong>Abierto: </strong>Dirigido a población en general.
-                                                    <br><strong>Cerrado: </strong>Convenio con sector público, convenio con sector privado o bases de colaboración con UNAM.
-                                    ">?</span>
-                            </label>
-                            <select name="project_type" id="project_type" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('project_type') border-red-500 @enderror" required>
-                                <option value="">Selecciona el tipo de proyecto</option>
-                                <option value="Abierto" {{ old('project_type') == 'Abierto' ? 'selected' : '' }}>Abierto</option>
-                                <option value="Cerrado" {{ old('project_type') == 'Cerrado' ? 'selected' : '' }}>Cerrado</option>
-                            </select>
-                            @error('project_type')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Equidad de genero -->
-                        <div class="mb-4">
-                            <label for="gender_equality" class="block font-bold mb-2">¿La actividad refiere a equidad de género o no discriminación?: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
-                                data-tippy-content="<strong>No: </strong>El tema central del evento es ajeno a la equidad de género.
-                                                    <br><strong>Equidad de género: </strong>Establecimiento y fortalecimiento de mecanismos destinados a impulsar la igualdad de derechos, responsabilidades y oportunidades de mujeres y hombres; revalorar el papel de la mujer y del hombre en el seno familiar, y en los ámbitos institucional y social; eliminar la discriminación individual y colectiva hacia el hombre y la mujer u otras minorías. 
-                                                    <br><strong>Estadísticas desagregadas por sexo: </strong>Son fuentes de información cuantitativa diseñadas para visibilizar la situación de las mujeres con relación a los hombres, en un determinado contexto social o institucional, a lo largo del tiempo. 
-                                                    <br><strong>Género: </strong>Conjunto de ideas, creencias y atribuciones sociales construidas en cada cultura y momento histórico, tomando como base la diferencia sexual; a partir de ello se construyen los conceptos de “masculinidad” y “feminidad”, los cuales determinan el comportamiento, las funciones, oportunidades, valoración y las relaciones entre hombres y mujeres. El concepto alude a las formas históricas y socioculturales en que mujeres y hombres construyen su identidad, interactúan y organizan su participación en la sociedad. 
-                                                    <br><strong>Igualdad de género : </strong>Situación en la que mujeres y hombres tienen las mismas posibilidades u oportunidades en la vida de acceder y controlar recursos y bienes valiosos desde el punto de vista social. El objetivo no es tanto que mujeres y hombres sean iguales, sino conseguir que unos y otros tengan las mismas oportunidades en la vida.
-                                    ">?</span>
-                            </label>
-                            <select name="gender_equality" id="gender_equality" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('gender_equality') border-red-500 @enderror" required>
-                                <option value="">Selecciona una opcion</option>
-                                <option value="No" {{ old('gender_equality') == 'No' ? 'selected' : '' }}>No</option>
-                                <option value="Equidad de género" {{ old('gender_equality') == 'Equidad de género' ? 'selected' : '' }}>Equidad de género</option>
-                                <option value="Estadísticas desagregadas por sexo" {{ old('gender_equality') == 'Estadísticas desagregadas por sexo' ? 'selected' : '' }}>Estadísticas desagregadas por sexo</option>
-                                <option value="Género" {{ old('gender_equality') == 'Género' ? 'selected' : '' }}>Género</option>
-                                <option value="Igualdad de género" {{ old('gender_equality') == 'Igualdad de género' ? 'selected' : '' }}></option>
-                            </select>
-                            @error('gender_equality')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        </div> --}}
 
                         <!-- Area de conocimiento -->
-                        <div class="mb-4">
+                        <input type="hidden" name="knowledge_area" value="1">
+                        {{-- <div class="mb-4">
                             <label for="knowledge_area" class="block font-bold mb-2">Campo de conocimiento: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                 data-tippy-content="Selecciona el campo de conocimiento">?</span>
                             </label>
@@ -393,76 +225,6 @@
                                 @endforeach
                             </select>
                             @error('knowledge_area')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Banner del evento -->
-                        <div class="mb-4">
-                            <label for="cover_image" class="block font-bold mb-2">Cartel publicitario (imagen en formato horizontal). 
-                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Esta imagen será utilizada para mostrar en la cartelera, debe ser breve y atractiva para el público interesado. Solo se admiten los formatos .jpg, .jpeg y .png con un peso máximo de 5 MB">?</span>
-                                <br>En caso de no contar con el cartel del evento, puede agregarlo en otro momento.
-                            </label>
-                            <input 
-                                type="file" 
-                                name="cover_image" 
-                                id="cover_image"                                 
-                                accept=".jpg, .jpeg, .png"
-                                maxlength="5242880"
-                                class="form-input dark:bg-gray-800 dark:text-white @error('cover_image') border-red-500 @enderror">
-                            @error('cover_image')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Programa -->
-                        {{-- <div class="mb-4">
-                            <label for="program" class="block font-bold mb-2">Cartel o programa: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Suba un documento con mayor información sobre el evento, puede ser un cartel o el programa. Solo se admite el formato pdf con un peso máximo de 5 MB">?</span></label>
-                            <input
-                                type="file"
-                                name="program" 
-                                id="program"
-                                accept=".pdf"
-                                maxlength="5242880"
-                                class="form-input dark:bg-gray-800 dark:text-white @error('program') border-red-500 @enderror">
-                            @error('program')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div> --}}
-
-                        <!-- Se requiere registro -->
-                        <div class="mb-4">
-                            <h3 class="font-bold">Registro</h3>
-                            <input type="checkbox" name="registration_required" id="registration_required" class="form-checkbox" {{ old('registration_required') ? 'checked' : '' }}>
-                            <label for="registration_required" class="mb-2">Para acceder al evento se requiere registro previo en un sitio web externo: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requiere un registro de los asistentes al evento, active esta casilla y posteriormente escriba la URL del enlace web donde se pueden registrar los asistentes. Este sitio de registro debe ser gestionado por el responsable del evento.">?</span></label>
-                            @error('registration_required')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- Enlace del registro -->
-                        <div id="registration_url_container" class="mb-4 hidden">
-                            <label for="registration_url" class="block font-bold mb-2">URL de Registro: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Escriba la URL del sitio de registro del sistema.">?</span></label>
-                            <input type="text" name="registration_url" id="registration_url" class="form-input dark:bg-gray-800 dark:text-white @error('registration_url') border-red-500 @enderror" value="{{ old('registration_url') }}">
-                            @error('registration_url')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror                            
-                        </div>
-
-                        {{-- Se remueven las opciones de servicios de UDEMAT hasta que esté implementado --}}
-
-                        {{-- <div class="mb-4">
-                            <label for="transmission_required" class="block font-bold mb-2">Requiere transmisión: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requiere que su evento sea transmitido por los canales institucionales gestionados por UDEMAT, active esta casilla.">?</span></label>
-                            <input type="checkbox" name="transmission_required" class="form-checkbox">
-                            @error('transmission_required')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror                            
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="recording_required" class="block font-bold mb-2">Requiere grabación: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requiere que se lleve a cabo la grabación de su evento, active esta casilla.">?</span></label>
-                            <input type="checkbox" name="recording_required" class="form-checkbox">
-                            @error('recording_required')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
                         </div> --}}

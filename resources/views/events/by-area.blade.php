@@ -144,43 +144,53 @@
 
                         <!-- Imagen del evento en minuatura -->
                         <div class="ml-4">
-                            @if ($event->cover_image == null)                            
-                                <img src="{{ asset('images/unam.png') }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover dark:bg-slate-300">
+                            @if($event->private==1)
+                                <div class="text-lg font-semibold text-amber-600 dark:text-amber-300">
+                                    Evento interno
+                                </div>
                             @else
-                                <img src="{{ asset($event->cover_image) }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover dark:bg-slate-300 cursor-pointer" onclick="window.open('{{ asset($event->cover_image) }}')">
+                                @if ($event->cover_image == null)                            
+                                    <img src="{{ asset('images/unam.png') }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover dark:bg-slate-300">
+                                @else
+                                    <img src="{{ asset($event->cover_image) }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover dark:bg-slate-300 cursor-pointer" onclick="window.open('{{ asset($event->cover_image) }}')">
+                                @endif
                             @endif
                         </div>
 
                         <!-- Sección de información-->
                         <div class="p-4">
                             <p><strong>Departamento solicitante:</strong>  {{$event->department->name}}</p>
-                            <p><strong>Persona responable del event:</strong> {{ $event->responsible->name }} <a href="mailto:{{ $event->responsible->email }}" class="text-blue-800 dark:text-blue-200"> {{ $event->responsible->email }}</a></p>
+                            <p><strong>Persona responsable del evento:</strong> {{ $event->responsible->name }} <a href="mailto:{{ $event->responsible->email }}" class="text-blue-800 dark:text-blue-200"> {{ $event->responsible->email }}</a></p>
                             <p><strong>Fecha:</strong> Del {{ $event->start_date }} al {{ $event->end_date }}</p>
                             <p><strong>Horario:</strong> De {{ $event->start_time }} a {{ $event->end_time }}</p>
                             
-                            @if ($event->registration_url!=null)
-                                <p><strong>Registro:</strong> {{ $event->registration_url }}</p>
-                            @else
-                                <p><strong>Registro:</strong> No se requiere</p>
-                            @endif
+                            @if($event->private!=1)
+                                <div>
+                                    @if ($event->registration_url!=null)
+                                        <p><strong>Registro:</strong> {{ $event->registration_url }}</p>
+                                    @else
+                                        <p><strong>Registro:</strong> No se requiere</p>
+                                    @endif
 
-                            {{-- @if ($event->program)
-                             <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 underline" download>Descargar Programa</a></p>
-                            @endif --}}
+                                    {{-- @if ($event->program)
+                                    <p><a href="{{ asset($event->program) }}" class="text-blue-600 hover:text-blue-900 underline" download>Descargar Programa</a></p>
+                                    @endif --}}
 
-                            <!-- Información de contacto -->
-                            @if ($event->contact_email!=null)
-                                <p><strong>Correo electrónico de contacto:</strong><a href="mailto:{{ $event->contact_email }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->contact_email }}</a></p>
-                            @endif
+                                    <!-- Información de contacto -->
+                                    @if ($event->contact_email!=null)
+                                        <p><strong>Correo electrónico de contacto:</strong><a href="mailto:{{ $event->contact_email }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->contact_email }}</a></p>
+                                    @endif
 
-                            <!-- Sitio web sobre el evento -->
-                            @if ($event->website!=null)
-                                <p><strong>Sitio web del evento:</strong><a href="{{ $event->website }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->website }}</a></p>
-                            @endif
+                                    <!-- Sitio web sobre el evento -->
+                                    @if ($event->website!=null)
+                                        <p><strong>Sitio web del evento:</strong><a href="{{ $event->website }}" target="_blank" class="text-blue-600 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-500 underline"> {{ $event->website }}</a></p>
+                                    @endif
 
-                            <!-- Requisitos adicionales-->
-                            @if ($event->requirements!=null)
-                                <p><strong>Requisitos para el evento:</strong> {{ $event->requirements }}</p>
+                                    <!-- Requisitos adicionales-->
+                                    @if ($event->requirements!=null)
+                                        <p><strong>Requisitos para el evento:</strong> {{ $event->requirements }}</p>
+                                    @endif
+                                </div>
                             @endif
 
                             <!-- Verificación del uso de recursos -->
@@ -206,7 +216,7 @@
                                             Por favor espere mientras la(el) {{ $eventspace->department->name }} atiende su solicitud.
                                         @elseif($eventSpaceStatus == "rechazado"&&$event->status!="borrador")
                                             <strong>Espacio rechazado:</strong> {{ $eventspace->pivot->observation }}
-                                        @elseif($eventSpaceStatus == "aceptado"&&$event->published==0)
+                                        @elseif($eventSpaceStatus == "aceptado"&&$event->published==0&&$event->private==0)
                                             Ahora puede publicar su evento dando clic en Publicar evento.
                                     @endif
                                     </p>
@@ -235,9 +245,11 @@
                             {{-- @if (($event->published==0&&$event->status!='finalizado')||$event->status=='solicitado') --}}
                             @if ($event->status=='solicitado'&&$event->cancelled==0)
                                 <!-- Actualizar -->
-                                <div class="mx-2">
-                                    <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
-                                </div>
+                                @if($event->private==0)
+                                    <div class="mx-2">
+                                        <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
+                                    </div>
+                                @endif
                                 <!-- Cancelar registro -->
                                 <div class="mx-2">
                                     <form action="{{ route('event.destroy', $event->id) }}" method="POST">
@@ -254,9 +266,12 @@
                             <!-- Eventos en borrador -->
                             @if ($event->status=="borrador"&&$event->cancelled==0)
                                 <!-- Actualizar -->
-                                <div class="mx-2">
-                                    <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
-                                </div>
+                                @if($event->private==0)
+                                    <div class="mx-2">
+                                        <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
+                                    </div>
+                                @endif
+
                                 <!-- Cancelar registro -->
                                 <div class="mx-2">
                                     <form action="{{ route('event.destroy', $event->id) }}" method="POST">
@@ -281,21 +296,23 @@
                             <!-- Evento con espacio aceptado y sin publicar -->
                             @if ($event->status=="finalizado"&&$event->published==0&&!$rechazado&&$event->cancelled==0)
                                 
-                                <!-- Actualizar -->
-                                <div class="mx-2">
-                                    <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
-                                </div>
+                                @if($event->private==0)
+                                    <!-- Actualizar -->
+                                    <div class="mx-2">
+                                        <a href="{{route('event.edit',$event->id)}}" class="text-orange-700 hover:underline dark:text-orange-300">Actualizar</a>
+                                    </div>
 
-                                <!-- Publicar -->
-                                <div class="mx-2">
-                                    <form action="{{ route('events.publish', ['id' => $event->id]) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="text-green-700 hover:underline dark:text-green-300">
-                                            Publicar Evento
-                                        </button>
-                                    </form>
-                                </div>
+                                    <!-- Publicar -->
+                                    <div class="mx-2">
+                                        <form action="{{ route('events.publish', ['id' => $event->id]) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="text-green-700 hover:underline dark:text-green-300">
+                                                Publicar Evento
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
 
                                 <!-- Cancelar evento -->
                                 <div class="mx-2">
