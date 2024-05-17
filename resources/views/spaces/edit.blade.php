@@ -165,7 +165,7 @@
                         <p class="text-red-500 text-sm">{{ $message }}</p>
                     @enderror
                 
-                    <button type="submit" class="bg-blue-600 text-white p-2 my-2">Actualizar documento</button>
+                    <button type="submit" class="bg-blue-500 text-white p-2">Actualizar documento</button>
                 </form>
             </div>
         </div>

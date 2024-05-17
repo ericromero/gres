@@ -5,8 +5,8 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+    <div class="p-6">
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             @forelse ($spaces as $space)
             <div class="bg-white dark:bg-gray-700 overflow-hidden shadow-md rounded-lg">
                 @if($space->availability!=1)
@@ -21,7 +21,7 @@
                 </div>
 
                 @if(isset($space->terms)&&$space->terms!=null)
-
+                    <a class="p-2" href="{{ $space->terms }}" target="_blank">Ver lineamientos</a>
                 @else
                     <div class="p-2 text-red-600 dark:text-red-300">No se ha cargado el documento de lineamientos.</div>
                 @endif
