@@ -6,6 +6,7 @@
 /public/images/spaces
 /public/images/events
 /public/program_files
+/public/docs
 /storage/*.key
 /vendor
 /tests
