@@ -159,10 +159,11 @@
 
                         <!-- Sección de información-->
                         <div class="p-4">
+                            <p><strong>Fecha de registro:</strong>  {{$event->formatted_created_at}}</p>
                             <p><strong>Departamento solicitante:</strong>  {{$event->department->name}}</p>
                             <p><strong>Persona responsable del evento:</strong> {{ $event->responsible->name }} <a href="mailto:{{ $event->responsible->email }}" class="text-blue-800 dark:text-blue-200"> {{ $event->responsible->email }}</a></p>
-                            <p><strong>Fecha:</strong> Del {{ $event->start_date }} al {{ $event->end_date }}</p>
-                            <p><strong>Horario:</strong> De {{ $event->start_time }} a {{ $event->end_time }}</p>
+                            <p><strong>Fecha:</strong> Del {{ $event->formatted_start_date }} al {{ $event->end_date }}</p>
+                            <p><strong>Horario:</strong> De {{ $event->formatted_start_time }} a {{ $event->end_time }}</p>
                             
                             @if($event->private!=1)
                                 <div>

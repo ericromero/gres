@@ -132,36 +132,36 @@ class EventController extends Controller
         return view('events.my-events', compact('events'));
     }
 
-    public function availableSearch() {
-        // Obtiene solo los eventos que no tienen espacios rechazados
-        $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
-            $query->where('status', '=', 'rechazado');
-        })->get();
+    // public function availableSearchhh() {
+    //     // Obtiene solo los eventos que no tienen espacios rechazados
+    //     $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
+    //         $query->where('status', '=', 'rechazado');
+    //     })->get();
 
-        $events = [];
-        foreach ($allEvents as $event) {
-            // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
-            $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->start_date . ' ' . $event->start_time);
-            $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->end_date . ' ' . $event->end_time);
+    //     $events = [];
+    //     foreach ($allEvents as $event) {
+    //         // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
+    //         $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->start_date . ' ' . $event->start_time);
+    //         $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->end_date . ' ' . $event->end_time);
 
-            // Añadir un evento por cada día entre la fecha de inicio y la fecha de finalización
-            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
-                // Asegurarse de que el evento no se extienda más allá de la fecha de finalización y hora
-                $endDateTime = $date->copy()->setTimeFrom(Carbon::createFromFormat('H:i:s', $event->end_time));
-                if ($endDateTime->gt($endDate)) {
-                    $endDateTime = $endDate->copy();
-                }
+    //         // Añadir un evento por cada día entre la fecha de inicio y la fecha de finalización
+    //         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+    //             // Asegurarse de que el evento no se extienda más allá de la fecha de finalización y hora
+    //             $endDateTime = $date->copy()->setTimeFrom(Carbon::createFromFormat('H:i:s', $event->end_time));
+    //             if ($endDateTime->gt($endDate)) {
+    //                 $endDateTime = $endDate->copy();
+    //             }
 
-                $events[] = [
-                    'title' => $event->title,
-                    'start' => $date->toDateTimeString(),
-                    'end' => $endDateTime->toDateTimeString(),
-                    'id' => $event->id,
-                ];
-            }
-        }
-        return view('events.availablesearch',compact('events'));
-    }
+    //             $events[] = [
+    //                 'title' => $event->title,
+    //                 'start' => $date->toDateTimeString(),
+    //                 'end' => $endDateTime->toDateTimeString(),
+    //                 'id' => $event->id,
+    //             ];
+    //         }
+    //     }
+    //     return view('events.availablesearch',compact('events'));
+    //}
 
     public function create()
     {
@@ -1283,8 +1283,9 @@ class EventController extends Controller
         // Obtiene los eventos que pertenecen a los departamentos del usuario
         $events = Event::whereIn('department_id', $departmentIds)->orderBy('start_date', 'desc')->paginate(8);
         foreach ($events as $event) {
-            $event->start_date=$this->getStringDate($event->start_date);
-            $event->end_date=$this->getStringDate($event->end_date);
+            $event->formatted_start_date = $this->getStringDate($event->start_date);
+            $event->formatted_end_date = $this->getStringDate($event->end_date);
+            $event->formatted_created_at = $this->getStringDateAndHour($event->created_at); // Nuevo atributo para fecha y hora formateada
         }
         return $events;
     }
@@ -1677,5 +1678,12 @@ class EventController extends Controller
 
     private function getStringDate($date) {
         return Carbon::parse($date)->isoFormat('dddd D [de] MMMM [de] YYYY');
+    }
+
+    private function getStringDateAndHour($date) {
+        // Establecer el idioma en español
+        Carbon::setLocale('es');
+
+        return Carbon::parse($date)->isoFormat('dddd D [de] MMMM [de] YYYY [a las] h:mm A');
     }
 }

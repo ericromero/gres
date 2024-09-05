@@ -6,7 +6,7 @@ use App\Http\Controllers\EventController;
 
 Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     // Ruta para encontrar disponibilidad de horario para reservar
-    Route::get('/eventos/disponibilidad', [EventController::class, 'availableSearch'])->name('events.availableSearch');
+    //Route::get('/eventos/disponibilidad', [EventController::class, 'availableSearch'])->name('events.availableSearch');
 
     // Ruta para acceder a la creación de eventos
     //Route::get('/events/seleccionado', [EventController::class,'createWithSpace'])->name('events.createwithSpace');
