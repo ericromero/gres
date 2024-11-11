@@ -11,7 +11,7 @@
                                         
                     <div>
                         <a href="{{ route('dashboard') }}">
-                            <img src="{{ asset('images/50anios.png') }}" alt="G-RES" class="block h-10 w-auto sm:rounded-lg" />
+                            <img src="{{ asset('images/logo.png') }}" alt="G-RES" class="block h-10 w-auto sm:rounded-lg" />
                         </a>
                     </div>                   
 

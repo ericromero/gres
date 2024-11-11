@@ -37,6 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware(['role:Administrador'])->group(function () {
+    // Configuración del sistema
+    Route::get('/configuration', [UserController::class, 'configuration'])->name('configuration');
+});
+
 require __DIR__.'/auth.php';
 
 // rutas adicionales

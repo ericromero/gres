@@ -1,3 +1,22 @@
+<style>
+    /* Estilo base para cada div */
+    .option-div {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Efecto al pasar el mouse por encima */
+    .option-div:hover {
+        transform: scale(1.05); /* Aumenta el tamaño ligeramente */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Agrega sombra para dar un efecto de elevación */
+    }
+
+    /* Efecto opcional de cambio de color de fondo */
+    .option-div:hover {
+        background-color: #f0f4f8; /* Color de fondo al pasar el cursor */
+    }
+</style>
+
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -42,9 +61,24 @@
                     </a>
                 @endhasrole --}}
 
+                <!-- Configuración -->
+                @hasrole('Administrador')
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">                        
+                        <div>
+                            <a href="{{ route('configuration') }}">
+                                <img src="{{ asset('images/configuracion.png') }}" alt="Usuarios" class="mx-auto h-20">
+                            </a>                            
+                        </div>
+
+                        <div>
+                            <a href="{{ route('configuration') }}" class="mt-2 text-blue-700 hover:text-blue-900 hover:underline dark:text-blue-100 dark:text-blue-300">Configuración</a>
+                        </div>                        
+                    </div>
+                @endhasrole
+
                 <!-- usuarios -->
                 @hasrole('Administrador')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">                        
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">                        
                         <div>
                             <a href="{{ route('users.index') }}">
                                 <img src="{{ asset('images/usuarios.png') }}" alt="Usuarios" class="mx-auto h-20">
@@ -59,7 +93,7 @@
 
                 <!-- Departamentos -->
                 @hasrole('Administrador')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('departments.index') }}">
                                 <img src="{{ asset('images/departamento.png') }}" alt="Departamentos" class="mx-auto h-20">
@@ -74,7 +108,7 @@
 
                 <!-- Espacios -->
                 @hasrole('Administrador')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('spaces.index') }}">
                                 <img src="{{ asset('images/espacios.png') }}" alt="Espacios" class="mx-auto h-20">
@@ -89,7 +123,7 @@
 
                 <!-- Mis espacios y recursos -->
                 @hasanyrole('Coordinador|Gestor de espacios')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('spaces.my-spaces') }}">
                                 <img src="{{ asset('images/espacios.png') }}" alt="Mis espacios y recursos" class="mx-auto h-20">
@@ -104,7 +138,7 @@
 
                 <!-- Equipo de trabajo -->
                 @hasanyrole('Administrador|Coordinador')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('users.team') }}">
                                 <img src="{{ asset('images/equipo.png') }}" alt="Equipo de trabajo" class="mx-auto h-20">
@@ -126,7 +160,7 @@
 
                 <!-- Eventos del día -->
                 @hasanyrole('Coordinador|Gestor de eventos')
-                <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                     <div>
                         <a href="{{ route('events.byDay') }}">
                             <img src="{{ asset('images/evento.png') }}" alt="Solicitar espacio" class="mx-auto h-20">
@@ -154,7 +188,7 @@
 
                 <!-- Registrar evento -->
                 @hasanyrole('Coordinador|Gestor de eventos')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('spaces.search') }}">
                                 <img src="{{ asset('images/calendario.png') }}" alt="Solicitar espacio" class="mx-auto h-20">
@@ -169,7 +203,7 @@
 
                 <!-- Eventos de la coordinación -->
                 @hasanyrole('Coordinador|Gestor de eventos')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('events.byArea') }}">
                                 <img src="{{ asset('images/autorizacioneventos.png') }}" alt="Autorización de eventos" class="mx-auto h-20">
@@ -210,7 +244,7 @@
                 
                 <!-- Espacios solicitados -->
                 @hasrole('Gestor de espacios')
-                    <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                    <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                         <div>
                             <a href="{{ route('event_spaces.review') }}">
                                 <img src="{{ asset('images/espacios_solicitados.png') }}" alt="Mis eventos" class="mx-auto h-20">
@@ -237,7 +271,7 @@
                 @endhasrole
 
                 <!-- Mis eventos -->
-                <div class="p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
+                <div class="option-div p-4 text-center bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-700 dark:border-gray-400">
                 
                     <div>
                         <a href="{{ route('events.my-events') }}">

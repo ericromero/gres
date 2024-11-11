@@ -1,19 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Cartelera') }}
+            {{ __('Calendario') }} <a href="{{route('eventos.cartelera')}}" class="text-blue-700 dark:text-blue-200 hover:underline text-sm">Ver cartelera</a>
         </h2>
-        <div class="text-gray-600 mb-2  dark:text-gray-100"">
-            <p>Ven a disfrutar de los diversos eventos académicos, culturales y deportivos que la Facultad de Psicología tiene para tí.</p>
-        </div>
     </x-slot>
 
     <div class="py-2  dark:text-gray-100">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">            
-            <div class="mb-4">
-                <a href="{{route('eventos.cartelera')}}" class="text-blue-700 dark:text-blue-200 hover:underline">Ver cartelera</a>
-            </div>
-
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div id="calendar">
                 
             </div>

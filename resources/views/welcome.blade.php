@@ -1,12 +1,49 @@
+<div id="loader">
+    <img src="{{ asset('images/logo-grande.png') }}" alt="Logo de Cartelera Psicología">
+</div>
+
+<style>
+    /* Estilos para la pantalla de carga */
+    #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        z-index: 9999;
+        transition: opacity 2s ease, visibility 2s ease;
+    }
+
+    #loader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    /* Estilos para el tamaño de la imagen */
+    #loader img {
+        width: 50vw; /* La imagen ocupará la mitad del ancho de la pantalla en dispositivos grandes */
+        max-width: 100%; /* Evita que la imagen se desborde en pantallas pequeñas */
+    }
+
+    /* Media query para dispositivos pequeños */
+    @media (max-width: 768px) {
+        #loader img {
+            width: 100vw; /* La imagen ocupará el 100% del ancho de la pantalla en dispositivos pequeños */
+        }
+    }
+</style>
+
+
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Cartelera') }}
+            {{ __('Cartelera') }} <a href="{{route('eventos.calendario')}}" class="text-blue-700 dark:text-blue-200 hover:underline text-sm"> (Ver calendario)</a>
         </h2>
-        <div class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 mb-2">
-            <p>Ven a disfrutar de los diversos eventos académicos, culturales y deportivos que la Facultad de Psicología tiene para tí.</p>
-            <p>Si es académica(o) de la Facultad y requieres solicitar un espacio y/o difundir su evento en este espacio, acuda al departamento o división de adscripción.</p>
-        </div>
     </x-slot>
 
     <div class="py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
@@ -15,10 +52,7 @@
                 <div class="text-center">
                     <p class="text-xl font-semibold">No hay eventos próximos</p>
                 </div>
-            @else
-                <div class="mb-4">
-                    <a href="{{route('eventos.calendario')}}" class="text-blue-700 dark:text-blue-200 hover:underline">Ver calendario</a>
-                </div>
+            @else                
                 <div class="grid gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
 
                     {{-- Inicia el ciclo para publicar todos los eventos --}}
@@ -41,8 +75,6 @@
 
                                 @if ($event->registration_url != null)
                                     <p class="text-sm"><strong>Registro:</strong> {{ $event->registration_url }}</p>
-                                @else
-                                    <p class="text-sm">Entrada libre.</p>
                                 @endif
                             </div>
 
@@ -54,3 +86,14 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    window.addEventListener('load', function() {
+        const loader = document.getElementById('loader');
+        setTimeout(function() {
+            loader.classList.add('fade-out'); 
+        }, 1000); 
+    });
+</script>
+
+
