@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\ReservationSettingsController;
 
 
 /*
@@ -39,7 +40,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['role:Administrador'])->group(function () {
     // Configuración del sistema
-    Route::get('/configuration', [UserController::class, 'configuration'])->name('configuration');
+    Route::get('/configuration', [ReservationSettingsController::class, 'edit'])->name('configuration');
+    Route::put('/reservation-settings', [ReservationSettingsController::class, 'update'])->name('reservation_settings.update');
 });
 
 require __DIR__.'/auth.php';

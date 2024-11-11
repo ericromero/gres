@@ -12,6 +12,7 @@ use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Resource;
+use App\Models\ReservationSetting;
 
 // Establecer el locale en español
 Carbon::setLocale('es');
@@ -21,19 +22,33 @@ class SpaceController extends Controller
 
     public function search(Request $request)
     {
+        $reservationSettings = ReservationSetting::first();
+        $allowedStartDate = $reservationSettings->start_date;
+        $allowedEndDate = $reservationSettings->end_date;
+
         $rules = [
-            'start_date' => 'date|after_or_equal:' . now()->addWeekdays(4)->format('Y-m-d'),
-            'end_date' => 'date|after_or_equal:start_date|before_or_equal:' . now()->addMonths(6)->format('Y-m-d'),
+            'start_date' => [
+                'date',
+                'after_or_equal:' . now()->addWeekdays(4)->format('Y-m-d'), // Al menos 4 días hábiles desde hoy
+                'after_or_equal:' . $allowedStartDate, // Igual o después de la fecha programada en el sistema
+                'before_or_equal:' . $allowedEndDate, // Antes o igual a la fecha máxima del sistema
+            ],
+            'end_date' => [
+                'date',
+                'after_or_equal:start_date', // Después o igual a la fecha de inicio
+                'before_or_equal:' . $allowedEndDate, // Antes o igual a la fecha máxima del sistema
+            ],
             'start_time' => 'date_format:H:i|after_or_equal:09:00|before_or_equal:18:00',
             'end_time' => 'date_format:H:i|after:start_time|before_or_equal:19:00',
         ];
 
         $messages = [
             'start_date.date' => 'El campo fecha de inicio debe ser una fecha válida.',
-            'start_date.after_or_equal' => 'La fecha de inicio debe ser al menos 4 días hábiles después de hoy.',
+            'start_date.after_or_equal' => 'La fecha de inicio debe ser al menos 4 días hábiles después de hoy y no antes de la fecha permitida por el sistema.',
+            'start_date.before_or_equal' => 'La fecha de inicio no debe exceder la fecha de fin permitida en el sistema.',
             'end_date.date' => 'El campo fecha de término debe ser una fecha válida.',
-            'end_date.after_or_equal' => 'La fecha de término debe ser después o igual a la fecha de inicio.',
-            'end_date.before_or_equal' => 'La fecha de término debe ser como máximo dentro de los próximos 6 meses.',
+            'end_date.after_or_equal' => 'La fecha de término debe ser igual o posterior a la fecha de inicio.',
+            'end_date.before_or_equal' => 'La fecha de término debe ser como máximo la fecha permitida en el sistema.',
             'start_time.date_format' => 'El campo hora de inicio debe tener el formato de hora HH:MM.',
             'start_time.after_or_equal' => 'La hora de inicio debe ser como mínimo a las 09:00.',
             'start_time.before_or_equal' => 'La hora de inicio debe ser como máximo a las 18:00.',
@@ -80,6 +95,10 @@ class SpaceController extends Controller
                 ];
             }
         }
+
+        // Obtener las fechas de configuración de reservas
+        $allowedStartDateText = $this->getStringDate($reservationSettings->start_date);
+        $allowedEndDateText = $this->getStringDate($reservationSettings->end_date);
         
         // Fin del código para desplegar el calendario
         if (
@@ -88,24 +107,8 @@ class SpaceController extends Controller
             $request->input('start_time') == null ||
             $request->input('end_time') == null
         ) {
-            return view('events.availablesearch',compact('events'));
+            return view('events.availablesearch',compact('events','allowedStartDate', 'allowedEndDate','allowedStartDateText','allowedEndDateText'));
         }
-
-        $request->validate([
-            'start_date' => 'required|date_format:Y-m-d',
-            'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
-            'start_time' => ['required', 'regex:/^(?:[01]\d|2[0-3]):(?:[03]0|00)$/'],
-            'end_time' => ['required', 'regex:/^(?:[01]\d|2[0-3]):(?:[03]0|00)$/', 'after:start_time'],
-        ], [
-            'start_date.required' => 'La fecha de inicio es obligatoria.',
-            'end_date.required' => 'La fecha de finalización es obligatoria.',
-            'end_date.after_or_equal' => 'La fecha de finalización debe ser igual o posterior a la fecha de inicio.',
-            'start_time.required' => 'La hora de inicio es obligatoria.',
-            'start_time.regex' => 'La hora de inicio debe tener minutos en 00 o 30.',
-            'end_time.required' => 'La hora de finalización es obligatoria.',
-            'end_time.regex' => 'La hora de finalización debe tener minutos en 00 o 30.',
-            'end_time.after' => 'La hora de finalización debe ser posterior a la hora de inicio.',
-        ]);
 
         $startDateTime = $request->input('start_date') . ' ' . $request->input('start_time');
         $endDateTime = $request->input('end_date') . ' ' . $request->input('end_time');
@@ -147,8 +150,7 @@ class SpaceController extends Controller
         $start_date_string=$this->getStringDate($start_date);
         $end_date_string=$this->getStringDate($end_date);
 
-
-        return view('events.availablesearch', compact('availableSpaces','start_date','end_date','start_time','end_time','events','start_date_string','end_date_string'));
+        return view('events.availablesearch', compact('availableSpaces','start_date','end_date','start_time','end_time','events','start_date_string','end_date_string','allowedStartDate', 'allowedEndDate','allowedStartDateText', 'allowedEndDateText'));
     }
 
     public function index() {

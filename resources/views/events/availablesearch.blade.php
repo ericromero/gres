@@ -49,15 +49,6 @@
                                     <p>Ubicación: {{ $space->location }}</p>
                                 </div>
                                 <div class="px-4 pb-4">
-                                    {{-- <a href="{{ route('events.createwithSpace', [
-                                        'space' => $space->id,
-                                        'start_date' => $start_date,
-                                        'end_date' => $end_date,
-                                        'start_time' => $start_time,
-                                        'end_time' => $end_time,
-                                    ]) }}" class="block mb-4 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
-                                        Seleccionar este espacio
-                                    </a> --}}
                                     <form action="{{ route('events.createwithSpace') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="space" value="{{ $space->id }}">
@@ -67,7 +58,7 @@
                                         <input type="hidden" name="end_time" value="{{ $end_time }}">
                                         
                                         <input type="checkbox" name="private" id="private{{ $i }}">
-                                        <label for="private{{ $i++ }}" class="ml-2">Hacer reserva rápida</label>
+                                        <label for="private{{ $i++ }}" class="ml-2">Evento interno o privado</label>
                                 
                                         <button type="submit" class="block mb-4 mt-2 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
                                             Seleccionar este espacio
@@ -81,14 +72,15 @@
                             No hay espacios disponibles para la fecha y hora seleccionada
                         </div>
                     @endif
-                    <!-- Bloque para registrar evento sin espacio físico-->
+
+                    <!-- Bloque para difundir -->
                     <div class="overflow-hidden shadow-md rounded-lg border border-gray-700 dark:border-gray-300">
                         <img src="{{ asset('images/videoconferencia.png') }}" alt="Imagen del espacio" class="w-full h-40 object-cover">
                         <div class="p-4">
-                            <h3 class="text-lg font-semibold">Evento por videoconferencia</h3>
+                            <h3 class="text-lg font-semibold">Solo difusión</h3>
                         </div>
                         <div class="p-4 border-t border-gray-700 dark:border-gray-300">
-                            <p>Si su evento será transmitido por videoconferencia (por ejemplo Zoom y/o youtube), seleccione esta opción para omitir la reserva de un espacio físico.</p>
+                            <p>Subir información para difundir un evento en Cartelera-Psicología (no se requiere un espacio físico).</p>
                         </div>
                         <div class="px-4 pb-4">
                             <a href="{{ route('events.createwithSpace', [
@@ -112,13 +104,14 @@
                 <div class="mb-2 dark:bg-gray-800 dark:text-white border-b border-gray-700 dark:border-gray-300">
                     <p>Selecciona la fecha y horario de tu evento.</p>
                 </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Permitido entre {{ $allowedStartDateText }} y {{ $allowedEndDateText}}</p>
                 <form action="{{ route('spaces.search') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2">
                         
                         <div class="my-2">
                             <label for="start_date" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Fecha de inicio</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="start_date" min="{{ now()->addWeekdays(4)->format('Y-m-d') }}" max="{{ now()->addMonths(6)->format('Y-m-d') }}" value="{{ old('start_date') }}" required>
+                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="start_date" min="{{ now()->addWeekdays(4)->format('Y-m-d') }}" max="{{ $allowedEndDate }}" value="{{ old('start_date') }}" required>
                         </div>
                         @error('start_date')
                             <span class="text-sm text-red-500">{{ $message }}</span>
@@ -126,7 +119,7 @@
                         
                         <div class="my-2">
                             <label for="end_date" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Fecha de fin</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="end_date" min="{{ now()->addWeekdays(4)->format('Y-m-d') }}" max="{{ now()->addMonths(6)->format('Y-m-d') }}" value="{{ old('end_date') }}" required>                            
+                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="end_date" min="{{ $allowedStartDate }}" max="{{ $allowedEndDate }}" value="{{ old('end_date') }}" required>                            
                         </div>
                         @error('end_date')
                             <span class="text-sm text-red-500">{{ $message }}</span>
@@ -163,7 +156,7 @@
             
             <div class="mx-2 p-2 border border-slate-400">
                 <div class="mb-2 dark:bg-gray-800 dark:text-white border-b border-gray-700 dark:border-gray-300">
-                    <p>Aquí puedes ver los eventos ya publicados.</p>
+                    <p><b>Disponibilidad.</b> Aquí puedes ver los espacios que han sido están solicitados y/o reservados.</p>
                 </div>
                 <div id="calendar">
                 </div>                
