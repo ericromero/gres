@@ -37,6 +37,17 @@
     }
 </style>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Espera 1.5 segundos después de cargar el contenido para hacer el desvanecimiento
+        setTimeout(function() {
+            const loader = document.getElementById('loader');
+            loader.classList.add('fade-out'); // Aplica el efecto de desvanecimiento
+        }, 1500); // Puedes ajustar el tiempo de retraso aquí si lo prefieres
+    });
+</script>
+
+
 
 
 <x-app-layout>
