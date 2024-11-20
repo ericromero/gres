@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\SpaceExceptionController;
 
-Route::middleware(['role:Administrador|Coordinador|Gestor de espacios'])->group(function () {
+Route::middleware(['role:Administrador'])->group(function () {
     // Agregar una nueva excepción de horario
     Route::post('/espacios/{space}/excepciones', [SpaceExceptionController::class, 'storeException'])
          ->name('spaces.exceptions.store');

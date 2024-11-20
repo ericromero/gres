@@ -47,7 +47,9 @@
                                     @csrf
                                     @method('DELETE')
                                     <label for="submit">{{ $exception->day_of_week }}: {{ $exception->start_time }} - {{ $exception->end_time }}</label>
-                                    <button type="submit" class="text-red-500">Eliminar</button>
+                                    @hasanyrole('Administrador')
+                                        <button type="submit" class="text-red-500">Eliminar</button>
+                                    @endhasrole
                                 </form>
                                 </li>
                             

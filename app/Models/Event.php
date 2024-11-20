@@ -40,6 +40,7 @@ class Event extends Model
         'space_required',
         'transmission_required',
         'recording_required',
+        'photography_required',
         'status',
         'published',
         'published_by',

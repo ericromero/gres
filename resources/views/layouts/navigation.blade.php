@@ -41,7 +41,7 @@
             @if (auth()->check())
                 <!-- Settings Dropdown -->
                 <div class="hidden sm:flex sm:items-center sm:ml-6">
-                    <x-dropdown align="right" width="48">
+                    <x-dropdown width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                                 <div>{{ Auth::user()->name }}</div>
@@ -73,7 +73,7 @@
                     </x-dropdown>
                 </div>
             @else
-                <div class="mb-4">
+                <div class="content-center mb-4">
                     <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Iniciar sesión</a>
                 </div>
             @endif
@@ -131,7 +131,7 @@
                 </div>
             </div>
         @else        
-            <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+            <div class="mt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
                 <a href="{{ route('login') }}" class="font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Iniciar sesión</a>
             </div>
         @endif

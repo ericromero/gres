@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl leading-tight text-gray-800 dark:text-gray-200">
-            {{ __('Crear Evento') }}
+            {{ __('Difundir Evento') }}
         </h2>
 
         {{-- Código para el manejo de notificaciones --}}
@@ -16,7 +16,7 @@
         @endif
 
         <div class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-            <p>Ingresa toda la información de tu evento, en caso de que se requiera realizar el registro, escribe la URL de la herramienta de registro.</p>        
+            <p><span class="text-red-700 dark:text-red-400"><b>Nota:</b> Considera que el evento será publicado o difundido al momento de concluir el registro. ¡No podrás hacer cambios posteriores!</span><br>Ingresa toda la información de tu evento, en caso de que se requiera realizar el registro. Los campos marcados con <span class="text-red-700 dark:text-red-500">*</span> son obligatorios</p>        
         </div>
     </x-slot>
 
@@ -24,7 +24,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="overflow-hidden shadow-sm sm:rounded-lg">                
                 <div class="p-2">
-                    <form action="{{ route('events.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('events.storeWithoutSpace') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div>
                             @if (isset($space)&&$space->name!=null)
@@ -46,7 +46,7 @@
                         <!-- Departamento solicitante -->
                         <div class="mb-4">
                             <label for="department" class="block font-bold mb-2">
-                                Departamento solicitante:
+                                <span class="text-red-700 dark:text-red-500">* </span>Departamento solicitante:
                                 <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Selecciona el departamento del cual solicitas el evento.">?</span>
                             </label>
                             <select name="department" id="department" class="js-example-basic-single form-select dark:bg-gray-800 dark:text-white @error('department') border-red-500 @enderror" required>
@@ -65,7 +65,7 @@
 
                         <!-- Tipo de evento -->
                         <div class="mb-4">
-                            <label for="event_type_id" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">Tipo de Evento: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="En caso de no encontrar el tipo de Evento adecuado, selecciona la opción Otro e ingresa la información correspondiente.">?</span></label>
+                            <label for="event_type_id" class="block text-gray-700 dark:text-gray-300 font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Tipo de Evento: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="En caso de no encontrar el tipo de Evento adecuado, selecciona la opción Otro e ingresa la información correspondiente.">?</span></label>
                             <select name="event_type_id" id="event_type_id" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('event_type_id') border-red-500 @enderror" required>
                                 <option value="">Seleccionar tipo de evento</option>
                                 @foreach($eventTypes as $eventType)
@@ -81,7 +81,7 @@
                             @enderror
                         </div>
                         
-                        <!-- Otro espacio solicitado  -->
+                        <!-- Otro tipo de evento  -->
                         <div class="mb-4" id="other-container">
                             <label for="other" class="block dark:text-gray-300 font-bold mb-2">Indica que tipo de evento: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="No debe exceder los 250 caracteres incluyendo espacios en blanco.">?</span></label>
                             <input type="text" name="other" id="other" maxlength="250" class="w-full form-input dark:bg-gray-800 dark:text-white @error('other') border-red-500 @enderror" value="{{ old('other') }}">
@@ -107,7 +107,7 @@
 
                         <!-- Título -->
                         <div class="mb-4">
-                            <label for="title" class="block dark:text-gray-300 font-bold mb-2">Título: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="No debe exceder los 250 caracteres incluyendo espacios en blanco.">?</span></label>                            
+                            <label for="title" class="block dark:text-gray-300 font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Título: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="No debe exceder los 250 caracteres incluyendo espacios en blanco.">?</span></label>                            
                             <input type="text" name="title" id="title" maxlength="250" class="w-full form-input dark:bg-gray-800 dark:text-white @error('title') border-red-500 @enderror" value="{{ old('title') }}" required>
                             
                             @error('title')
@@ -119,7 +119,7 @@
                         <!-- Responsable -->
                         <div class="border p-2 border-gray-700 dark:border-gray-300">                            
                             <div class="mb-4">
-                                <label for="responsible" class="block font-bold mb-2">Solicitante (persona responsable de organizar el evento): <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
+                                <label for="responsible" class="block font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Solicitante (persona responsable de organizar el evento): <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="Selecciona al académico(a) que está organizando el evento y es responsable de realizar los trámites necesarios para llevarlo a cabo. En caso de no encontarlo en la lista, selecciona 'Otro responsable' e ingresa la información.">?</span>
                                 </label>
                                 <select name="responsible" id="responsible" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('responsible') border-red-500 @enderror" required>
@@ -173,7 +173,7 @@
                         <!-- Responsable logístico -->
                         <div class="my-2 p-2 border border-gray-700 dark:border-gray-300">                            
                             <div class="mb-4">
-                                <label for="coresponsible" class="block font-bold mb-2">Responsable logístico: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Persona responsable de organizar y supervisar al equipo logístico del evento así como monitorear el uso adecuado del auditorio y hacer la entrega del mismo.">?</span></label>
+                                <label for="coresponsible" class="block font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Responsable logístico: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Persona responsable de organizar y supervisar al equipo logístico del evento así como monitorear el uso adecuado del auditorio y hacer la entrega del mismo.">?</span></label>
                                 <select name="coresponsible" id="coresponsible" class="js-example-basic-single form-select dark:bg-gray-800 dark:text-white @error('coresponsible') border-red-500 @enderror" required>
                                     <option value="">Seleccionar responsable logístico</option>
                                     <option value="other_coresponsible" {{ old('coresponsible') == 'other_coresponsible' ? 'selected' : '' }}>Otra(o) académica(o)</option>
@@ -228,7 +228,7 @@
 
                         <!-- Resumen -->
                         <div class="mb-4">
-                            <label for="summary" class="block font-bold mb-2">Resumen: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Agrega un resumen y/o información adicional para el público interesado en el evento, como máximo se admiten 500 caracteres.">?</span></label>
+                            <label for="summary" class="block font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Resumen: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Agrega un resumen y/o información adicional para el público interesado en el evento, como máximo se admiten 500 caracteres.">?</span></label>
                             <textarea name="summary" id="summary" maxlength="500" rows="4" class="w-full form-textarea dark:bg-gray-800 dark:text-white @error('summary') border-red-500 @enderror" required>{{ old('summary') }}</textarea>
                             @error('summary')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
@@ -254,18 +254,6 @@
                             @error('website')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
-                        </div>
-
-                        <!-- Requisitos adicionales -->
-                        <div class="mb-4">
-                            <label for="requirements" class="block font-bold mb-2">Requisitos adicionales: 
-                                <span class="text-sm">(campo opcional, información adicional sobre el uso del espacio)</span>
-                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Si requieres algo adicional como un acomodo de sillones, mesas, sillas, ect. descríbelo en este apartado.">?</span></label>
-                            <textarea name="requirements" id="requirements" maxlength="500" rows="4" class="w-full form-textarea dark:bg-gray-800 dark:text-white @error('requirements') border-red-500 @enderror">{{ old('requirements') }}</textarea>
-                            @error('requirements')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                            <p class="text-gray-500 dark:text-gray-300 text-sm">Caracteres restantes: <span id="char-count-requirements">500</span></p>
                         </div>
 
                         <!-- Fechas y horarios -->
@@ -301,7 +289,7 @@
 
                         <!-- Audiencia -->
                         <div class="mb-4">
-                            <label for="audience" class="block font-bold mb-2">Audiencia: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
+                            <label for="audience" class="block font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Audiencia: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                 data-tippy-content="Selecciona a quién va dirigido el evento.">?</span>
                             </label>
                             <select name="audience" id="audience" class="js-example-basic-single dark:bg-gray-800 dark:text-white @error('audience') border-red-500 @enderror" required>
@@ -321,7 +309,7 @@
                         <!-- Modalidad -->
                         <div class="mb-4">
                             <label for="modality" class="block font-bold mb-2">
-                                Modalidad:
+                                <span class="text-red-700 dark:text-red-500">* </span>Modalidad:
                                 <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="<strong>A distancia:</strong> Modalidad de enseñanza-aprendizaje no presencial. Emplea medios de comunicación remota entre el alumnado y la profesora o el profesor.
                                                         <br><strong>Presencial:</strong> Se refiere a la actividad de impartir clase a un grupo de estudiantes en instalaciones universitarias, estando presentes tanto la profesora o el profesor, así como el alumnado.
@@ -342,7 +330,7 @@
                         <!-- Alcance -->
                         <div class="mb-4">
                             <label for="scope" class="block font-bold mb-2">
-                                Alcance:
+                                <span class="text-red-700 dark:text-red-500">* </span>Alcance:
                                 <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="Selecciona el alcance del evento.">?</span>
                             </label>
@@ -359,7 +347,7 @@
                         <!-- Tipo de proyecto -->
                         <div class="mb-4">
                             <label for="project_type" class="block font-bold mb-2">
-                                Tipo de proyecto:
+                                <span class="text-red-700 dark:text-red-500">* </span>Tipo de proyecto:
                                 <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="<strong>Abierto: </strong>Dirigido a población en general.
                                                         <br><strong>Cerrado: </strong>Convenio con sector público, convenio con sector privado o bases de colaboración con UNAM.
@@ -378,7 +366,7 @@
                         <!-- Equidad de género -->
                         <div class="mb-4">
                             <label for="gender_equality" class="block font-bold mb-2">
-                                ¿La actividad refiere a equidad de género o no discriminación?:
+                                <span class="text-red-700 dark:text-red-500">* </span>¿La actividad refiere a equidad de género o no discriminación?:
                                 <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="<strong>No: </strong>El tema central del evento es ajeno a la equidad de género.
                                                         <br><strong>Equidad de género: </strong>Establecimiento y fortalecimiento de mecanismos destinados a impulsar la igualdad de derechos, responsabilidades y oportunidades de mujeres y hombres; revalorar el papel de la mujer y del hombre en el seno familiar, y en los ámbitos institucional y social; eliminar la discriminación individual y colectiva hacia el hombre y la mujer u otras minorías.
@@ -403,7 +391,7 @@
                         <!-- Área de conocimiento -->
                         <div class="mb-4">
                             <label for="knowledge_area" class="block font-bold mb-2">
-                                Campo de conocimiento:
+                                <span class="text-red-700 dark:text-red-500">* </span>Campo de conocimiento:
                                 <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600"
                                     data-tippy-content="Selecciona el campo de conocimiento">?</span>
                             </label>
@@ -423,9 +411,8 @@
 
                         <!-- Banner del evento -->
                         <div class="mb-4">
-                            <label for="cover_image" class="block font-bold mb-2">Cartel publicitario (imagen en formato horizontal). 
-                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Esta imagen será utilizada para mostrar en la cartelera, debe ser breve y atractiva para el público interesado. Solo se admiten los formatos .jpg, .jpeg y .png con un peso máximo de 5 MB">?</span>
-                                <br>En caso de no contar con el cartel del evento, puede agregarlo en otro momento.
+                            <label for="cover_image" class="block font-bold mb-2"><span class="text-red-700 dark:text-red-500">* </span>Cartel publicitario (1080 x 1920 px). 
+                                <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Tamaño recomendado: 1080 x 1920 px. Esta imagen será utilizada para mostrar en la cartelera, debe ser breve y atractiva para el público interesado. Solo se admiten los formatos .jpg, .jpeg y .png con un peso máximo de 5 MB">?</span>
                             </label>
                             <input 
                                 type="file" 
@@ -433,26 +420,12 @@
                                 id="cover_image"                                 
                                 accept=".jpg, .jpeg, .png"
                                 maxlength="5242880"
-                                class="form-input dark:bg-gray-800 dark:text-white @error('cover_image') border-red-500 @enderror">
+                                class="form-input dark:bg-gray-800 dark:text-white @error('cover_image') border-red-500 @enderror"
+                                required>
                             @error('cover_image')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror
                         </div>
-
-                        <!-- Programa -->
-                        {{-- <div class="mb-4">
-                            <label for="program" class="block font-bold mb-2">Cartel o programa: <span class="px-1 text-gray-600 bg-gray-300 dark:text-gray-300 dark:bg-gray-600" data-tippy-content="Suba un documento con mayor información sobre el evento, puede ser un cartel o el programa. Solo se admite el formato pdf con un peso máximo de 5 MB">?</span></label>
-                            <input
-                                type="file"
-                                name="program" 
-                                id="program"
-                                accept=".pdf"
-                                maxlength="5242880"
-                                class="form-input dark:bg-gray-800 dark:text-white @error('program') border-red-500 @enderror">
-                            @error('program')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div> --}}
 
                         <!-- Se requiere registro -->
                         <div class="mb-4">
@@ -473,55 +446,7 @@
                             @enderror                            
                         </div>
 
-                        <!-- Servicios de UDEMAT -->                        
-                        <div class="mb-4">
-                            <h3 class="font-bold">Servicios de UDEMAT</h3>
-                            <!-- Transmisión por YouTube -->
-                            <input type="hidden" name="transmission_required" value="0">
-                            <label for="transmission_required" class="inline-flex items-center">
-                                <input type="checkbox" name="transmission_required" id="transmission_required"
-                                       class="form-checkbox rounded dark:bg-gray-800 dark:text-gray-300"
-                                       value="1" {{ old('transmission_required') ? 'checked' : '' }}>
-                                <span class="ml-2 text-gray-700 dark:text-gray-300">
-                                    ¿Requieres que la UDEMAT transmita el evento por YouTube?
-                                </span>
-                            </label>
-                            @error('transmission_required')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <!-- Grabación en Video -->
-                        <div class="mb-4">
-                            <input type="hidden" name="recording_required" value="0">
-                            <label for="recording_required" class="inline-flex items-center">
-                                <input type="checkbox" name="recording_required" id="recording_required"
-                                       class="form-checkbox rounded dark:bg-gray-800 dark:text-gray-300"
-                                       value="1" {{ old('recording_required') ? 'checked' : '' }}>
-                                <span class="ml-2 text-gray-700 dark:text-gray-300">
-                                    ¿Requieres que la UDEMAT grabe el video del evento?
-                                </span>
-                            </label>
-                            @error('recording_required')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <input type="hidden" name="photography_required" value="0">
-                            <label for="photography_required" class="inline-flex items-center">
-                                <input type="checkbox" name="photography_required" id="photography_required"
-                                       class="form-checkbox rounded dark:bg-gray-800 dark:text-gray-300"
-                                       value="1" {{ old('photography_required') ? 'checked' : '' }}>
-                                <span class="ml-2 text-gray-700 dark:text-gray-300">¿Se requiere fotografía para este evento?</span>
-                            </label>
-                            @error('photography_required')
-                                <p class="text-red-500 text-sm">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-
-                        <div class="form-check">
+                        {{-- <div class="form-check">
                             <h3 class="font-bold">Lineamientos en el uso de espacios</h3>
                             <input class="form-check-input rounded {{ $errors->has('agreeTerms') ? 'is-invalid' : '' }}" type="checkbox" id="agreeTerms" name="agreeTerms">
                             <label class="form-check-label" for="agreeTerms">
@@ -533,7 +458,7 @@
                             @error('agreeTerms')
                                 <p class="text-red-500 text-sm">{{ $message }}</p>
                             @enderror  
-                        </div>
+                        </div> --}}
                         
                         <div class="flex">
                             <div class="flex items-center justify-end mt-4">

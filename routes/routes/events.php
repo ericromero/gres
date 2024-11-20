@@ -9,31 +9,33 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     //Route::get('/eventos/disponibilidad', [EventController::class, 'availableSearch'])->name('events.availableSearch');
 
     // Ruta para acceder a la creación de eventos
-    //Route::get('/events/seleccionado', [EventController::class,'createWithSpace'])->name('events.createwithSpace');
-    //Route::get('/events/seleccionado/{space}/{start_date}/{end_date}/{start_time}/{end_time}', [EventController::class,'createWithSpace'])->name('events.createwithSpace');
-    Route::post('/events/create-with-space', [EventController::class, 'createWithSpace'])->name('events.createwithSpace');
+    //Route::post('/events/create-with-space', [EventController::class, 'createWithSpace'])->name('events.createwithSpace');
+    Route::match(['get', 'post'], '/evento/solicitar/espacio', [EventController::class, 'createWithSpace'])->name('events.createWithSpace');
+    Route::match(['get', 'post'], '/evento/solicitar/difusion', [EventController::class, 'createWithoutSpace'])->name('events.createWithoutSpace');
 
     // Ruta para guardar el nuevo evento en la base de datos
-    Route::post('/eventos/guardar', [EventController::class, 'store'])->name('events.store');
-
+    Route::post('/evento/guardar', [EventController::class, 'store'])->name('events.store');
 
     // Ruta para guardar el nuevo evento en la base de datos
-    Route::post('/eventos/guardar/evento-interno', [EventController::class, 'storePrivate'])->name('events.store.private');
+    Route::post('/evento/guardar', [EventController::class, 'storeWithoutSpace'])->name('events.storeWithoutSpace');
+
+    // Ruta para guardar el nuevo evento en la base de datos
+    Route::post('/evento/guardar/interno', [EventController::class, 'storePrivate'])->name('events.store.private');
 
     //Ruta para acceder a la creación de eventos
     Route::get('/evento/nuevo', [EventController::class,'create'])->name('events.create');
 
     //Ruta para acceder a la creación de eventos privados
-    Route::post('/events/create-with-space/private', [EventController::class, 'createWithSpace'])->name('events.createwithSpace.private');
+    Route::post('/evento/nuevo/interno', [EventController::class, 'createWithSpace'])->name('events.createwithSpace.private');
 
     //Ruta para acceder a la creación de eventos
     //Route::post('/evento/nuevo', [EventController::class,'create'])->name('events.create');
 
     // Ruta para guadar los participantes de un evento
-    Route::get('/events/{event}/participantes', [EventController::class, 'registrarParticipantes'])->name('events.participants');
+    Route::get('/evento/{event}/participantes', [EventController::class, 'registrarParticipantes'])->name('events.participants');
 
     // Ruta para guadar los participantes de un evento
-    Route::get('/events/{event}/participantes/actualizar', [EventController::class, 'actualizarParticipantes'])->name('events.participants.update');
+    Route::get('/evento/{event}/participantes/actualizar', [EventController::class, 'actualizarParticipantes'])->name('events.participants.update');
 
     // Ruta para guardar el nuevo evento en la base de datos
     //Route::post('/eventos/busca/participante', [EventController::class, 'searchparticipant'])->name('event.searchparticipant');
@@ -45,10 +47,10 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     Route::get('/eventos/area', [EventController::class,'by_area'])->name('events.byArea');
 
     // Lista los eventos generados por el área aplicando filtro
-    Route::post('/eventos/area/filtered', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
+    Route::post('/eventos/area/filtrados', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
     
     // Lista los eventos generados por el área aplicando filtro
-    Route::get('/eventos/area/filtered', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
+    Route::get('/eventos/area/filtrados', [EventController::class,'by_area_filter'])->name('events.byArea.filter');
 
     // Eventos del área que se encuentran en estatus de borrador
     Route::get('/eventos/area/borrador',[EventController::class,'by_area_drafts'])->name('events.byArea.drafts');
@@ -75,16 +77,16 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     Route::delete('/evento/eliminar/{event}', [EventController::class,'destroy'])->name('event.destroy');
 
     // Ruta para publicar un evento
-    Route::put('/events/{id}/publicar', [EventController::class, 'publish'])->name('events.publish');
+    Route::put('/evento/{id}/publicar', [EventController::class, 'publish'])->name('events.publish');
 
     // Ruta para seleccionar los recursos para el evento
-    Route::get('/events/{event}/recursos', [EventController::class, 'selectResources'])->name('event.selectResources');
+    Route::get('/evento/{event}/recursos', [EventController::class, 'selectResources'])->name('event.selectResources');
 
     // Agregar los recursos al evento
-    Route::get('/events/agregar/recurso/{event}/{resource}', [EventController::class, 'addResource'])->name('event.addResource');
+    Route::get('/evento/agregar/recurso/{event}/{resource}', [EventController::class, 'addResource'])->name('event.addResource');
 
     // Quitar al recurso de la reserva del espacio
-    Route::get('/events/quitar/recurso/{reservedResource}/{event}', [EventController::class, 'removeResource'])->name('event.removeResource');
+    Route::get('/evento/quitar/recurso/{reservedResource}/{event}', [EventController::class, 'removeResource'])->name('event.removeResource');
 
 });
 

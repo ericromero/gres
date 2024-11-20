@@ -132,37 +132,6 @@ class EventController extends Controller
         return view('events.my-events', compact('events'));
     }
 
-    // public function availableSearchhh() {
-    //     // Obtiene solo los eventos que no tienen espacios rechazados
-    //     $allEvents = Event::whereDoesntHave('eventSpaces', function ($query) {
-    //         $query->where('status', '=', 'rechazado');
-    //     })->get();
-
-    //     $events = [];
-    //     foreach ($allEvents as $event) {
-    //         // Convertir las fechas de inicio y fin a objetos Carbon para poder manipularlas
-    //         $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->start_date . ' ' . $event->start_time);
-    //         $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $event->end_date . ' ' . $event->end_time);
-
-    //         // Añadir un evento por cada día entre la fecha de inicio y la fecha de finalización
-    //         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
-    //             // Asegurarse de que el evento no se extienda más allá de la fecha de finalización y hora
-    //             $endDateTime = $date->copy()->setTimeFrom(Carbon::createFromFormat('H:i:s', $event->end_time));
-    //             if ($endDateTime->gt($endDate)) {
-    //                 $endDateTime = $endDate->copy();
-    //             }
-
-    //             $events[] = [
-    //                 'title' => $event->title,
-    //                 'start' => $date->toDateTimeString(),
-    //                 'end' => $endDateTime->toDateTimeString(),
-    //                 'id' => $event->id,
-    //             ];
-    //         }
-    //     }
-    //     return view('events.availablesearch',compact('events'));
-    //}
-
     public function create()
     {
         // Obtener los usuarios con departamento asignado
@@ -170,6 +139,7 @@ class EventController extends Controller
         
         // Obtener la lista de tipos de eventos disponibles
         $eventTypes = EventType::orderBy('name','asc')->get();
+
         return view('events.create', compact('eventTypes','academicos'));
 
     }
@@ -231,12 +201,202 @@ class EventController extends Controller
 
         // Obtener la lista de las categorias de tipos de eventos
         $categories = EventCategory::orderBy('name','asc')->get();
+
+        // Obtención del departamento del equipo al que pertenece el usuario
+        $teamDepartmentId=$user->team->department->id;
+        
+        // Obtencion de variables con mayor frecuencia
+        $mostFrequentEventType = Event::select('event_type_id')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('event_type_id')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('event_type_id')
+            ->first();
+
+        $mostFrequentAudience = Event::select('audience_id')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('audience_id')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('audience_id')
+            ->first();
+
+        $mostFrequentModality = Event::select('modality')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('modality')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('modality')
+            ->first();
+
+        $mostFrequentScope = Event::select('scope')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('scope')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('scope')
+            ->first();
+
+        $mostFrequentProjectType = Event::select('project_type')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('project_type')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('project_type')
+            ->first();
+        
+        $mostFrequentGenderEquality = Event::select('gender_equality')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('gender_equality')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('gender_equality')
+            ->first();
+        
+        $mostFrequentKnowledgeArea  = Event::select('knowledge_area_id')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('knowledge_area_id')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('knowledge_area_id')
+            ->first();
         
         if ($request->has('private')) {
             // El checkbox está marcado
-            return view('events.create-private', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences','eventTypes','knowledge_areas','categories','start_date_string','end_date_string'));
+            return view('events.create-private', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences',
+                        'eventTypes','knowledge_areas','categories','start_date_string','end_date_string'));
         }
-        return view('events.create', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences','eventTypes','knowledge_areas','categories','start_date_string','end_date_string'));
+        return view('events.create', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences',
+                    'eventTypes','knowledge_areas','categories','start_date_string','end_date_string',
+                    'mostFrequentEventType','mostFrequentAudience','mostFrequentModality','mostFrequentScope','mostFrequentProjectType','mostFrequentGenderEquality','mostFrequentKnowledgeArea'));
+    }
+
+    public function createWithoutSpace(Request $request)
+    {
+        // Extrae los valores del formulario
+        $spaceId = $request->input('space');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $start_time = $request->input('start_time');
+        $end_time = $request->input('end_time');
+        $start_date_string=$this->getStringDate($start_date);
+        $end_date_string=$this->getStringDate($end_date);
+
+        // Obtén el usuario autenticado
+        $user = Auth::user();
+
+        // Lista de departamentos a los que pertenece el usuario
+        $departments = $user->adscriptions->map(function ($adscription) {
+            return $adscription->department;
+        });
+
+        // Se verifica que el espacio seleccionado esté habilitado        
+        $space=Space::find($spaceId);
+        if($space!=null&&!$space->availability) {
+            return back()->with('error', 'El espacio solicitado no está disponible.');
+        }
+
+        // Obtener los usuarios con departamento asignado
+        $academicos = User::has('adscriptions.department')->orderBy('name','asc')->get();
+
+        // Obtener la lista de tipos de eventos disponibles
+        $eventTypes = EventType::orderBy('name','asc')->get();
+
+         // Obtener los tipos de audiencia
+        $audiences = Audience::orderBy('name','asc')->get();
+
+        // Obtener la lista de tipos de eventos disponibles
+        $eventTypes = EventType::orderBy('name','asc')->get();
+
+        // Obtener la lista de campos de conocimiento
+        $knowledge_areas = KnowledgeArea::orderBy('name','asc')->get();
+
+        // Obtener la lista de las categorias de tipos de eventos
+        $categories = EventCategory::orderBy('name','asc')->get();
+
+        // Obtención del departamento del equipo al que pertenece el usuario
+        $teamDepartmentId=$user->team->department->id;
+        
+        // Obtencion de variables con mayor frecuencia
+        $mostFrequentEventType = Event::select('event_type_id')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('event_type_id')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('event_type_id')
+            ->first();
+
+        $mostFrequentAudience = Event::select('audience_id')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('audience_id')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('audience_id')
+            ->first();
+
+        $mostFrequentModality = Event::select('modality')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('modality')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('modality')
+            ->first();
+
+        $mostFrequentScope = Event::select('scope')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('scope')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('scope')
+            ->first();
+
+        $mostFrequentProjectType = Event::select('project_type')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('project_type')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('project_type')
+            ->first();
+        
+        $mostFrequentGenderEquality = Event::select('gender_equality')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('gender_equality')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('gender_equality')
+            ->first();
+        
+        $mostFrequentKnowledgeArea  = Event::select('knowledge_area_id')
+            ->where('department_id', $teamDepartmentId) // Filtrar por el departamento del usuario
+            ->selectRaw('COUNT(*) as frequency')  // Contar ocurrencias de cada tipo de evento
+            ->groupBy('knowledge_area_id')
+            ->orderBy('frequency', 'DESC')  // Ordenar por frecuencia en orden descendente
+            ->limit(1)
+            ->pluck('knowledge_area_id')
+            ->first();
+        
+        // if ($request->has('private')) {
+        //     // El checkbox está marcado
+        //     return view('events.create-private', compact('space','eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences',
+        //                 'eventTypes','knowledge_areas','categories','start_date_string','end_date_string'));
+        // }
+        return view('events.create-notice', compact('eventTypes','start_date','end_date','start_time','end_time','academicos','departments','audiences',
+                    'eventTypes','knowledge_areas','categories','start_date_string','end_date_string',
+                    'mostFrequentEventType','mostFrequentAudience','mostFrequentModality','mostFrequentScope','mostFrequentProjectType','mostFrequentGenderEquality','mostFrequentKnowledgeArea'));
     }
 
     public function store(Request $request)
@@ -345,6 +505,18 @@ class EventController extends Controller
                     $query->where('email', '!=', request('email_responsible'));
                 }),
             ],
+            'recording_required' => [
+                'nullable',
+                'boolean'
+            ],
+            'transmission_required' => [
+                'nullable',
+                'boolean'
+            ],
+            'photography_required' => [
+                'nullable',
+                'boolean'
+            ],
             'agreeTerms' => [
                 'accepted',
             ],
@@ -416,163 +588,442 @@ class EventController extends Controller
             'agreeTerms.accepted' => 'Es necesario indicar que ha leído y está deacuerdo con los lineamientos del espacio solicitado.',
         ];
     
-        $validatedData = $request->validate($rules, $messages);
+        try {
+            $validatedData = $request->validate($rules, $messages);
 
-        // Se verifica que el spacio seleccionado esté habilitado
-        if($request->input('space')!=null) {
-            $space=Space::find($request->input('space'));
-            if(!$space->availability) {
-                return redirect()->route('spaces.search')->with('error', 'El espacio solicitado no está disponible.');
+            // Se verifica que el spacio seleccionado esté habilitado
+            if($request->input('space')!=null) {
+                $space=Space::find($request->input('space'));
+                if(!$space->availability) {
+                    return redirect()->route('spaces.search')->with('error', 'El espacio solicitado no está disponible.');
+                }
             }
-        }
 
-        ///////// Este bloque verifica si el espacio seleccionado tiene una excepción de horario //////////////////////
-        // Convertir las fechas a día de la semana
-        $daySearch = Carbon::parse($request->input('start_date'))->locale('es')->isoFormat('dddd');
-        
-        // Verificar si el espacio tiene excepciones para el día y hora buscados
-        $hasException = $space->exceptions()->where('day_of_week', $daySearch)
-                        ->whereTime('start_time', '<=', $request->input('end_time'))
-                        ->whereTime('end_time', '>=', $request->input('start_time'))
-                        ->exists();
+            ///////// Este bloque verifica si el espacio seleccionado tiene una excepción de horario //////////////////////
+            // Convertir las fechas a día de la semana
+            $daySearch = Carbon::parse($request->input('start_date'))->locale('es')->isoFormat('dddd');
+            
+            // Verificar si el espacio tiene excepciones para el día y hora buscados
+            if(isset($space)) {
+                $hasException = $space->exceptions()->where('day_of_week', $daySearch)
+                                ->whereTime('start_time', '<=', $request->input('end_time'))
+                                ->whereTime('end_time', '>=', $request->input('start_time'))
+                                ->exists();
 
-        if ($hasException) {
-            return redirect()->route('spaces.search')->with('error', 'El espacio solicitado tiene una excepción de horario para la fecha y hora seleccionadas.');
-        }
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                if ($hasException) {
+                    return redirect()->route('spaces.search')->with('error', 'El espacio solicitado tiene una excepción de horario para la fecha y hora seleccionadas.');
+                }
+            }
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        $eventType = $request->input('event_type_id');
+            $eventType = $request->input('event_type_id');
 
-        if ($eventType == 'Other') {
-            // Si el tipo de evento es "Other", crea un nuevo tipo de evento
-            $newEventType = new EventType();
-            $newEventType->name = $request->input('other');
-            $newEventType->event_category_id=$request->input('category');
-            $newEventType->register_by = Auth::id();
-            $newEventType->save();
+            if ($eventType == 'Other') {
+                // Si el tipo de evento es "Other", crea un nuevo tipo de evento
+                $newEventType = new EventType();
+                $newEventType->name = $request->input('other');
+                $newEventType->event_category_id=$request->input('category');
+                $newEventType->register_by = Auth::id();
+                $newEventType->save();
 
-            // Actualiza el valor de event_type_id para ser el ID del nuevo tipo de evento
-            $request->merge(['event_type_id' => $newEventType->id]);
-        }
+                // Actualiza el valor de event_type_id para ser el ID del nuevo tipo de evento
+                $request->merge(['event_type_id' => $newEventType->id]);
+            }
 
-        // Validar y crear un nuevo responsable si es seleccionado "otro responsable"
-        $responsibleId = $request->input('responsible');
-        if ($responsibleId == 'other_responsible') {
-            $external=null;
-            if($request->external_responsible=='1') {
+            // Validar y crear un nuevo responsable si es seleccionado "otro responsable"
+            $responsibleId = $request->input('responsible');
+            if ($responsibleId == 'other_responsible') {
+                $external=null;
+                if($request->external_responsible=='1') {
+                    $external=$request->external_responsible;
+                }
+                $name=$request->other_responsible_name;
+                $degree=$request->degree_responsible;
+                $email=$request->email_responsible;
                 $external=$request->external_responsible;
+                $newResponsible = $this->createNewUser($name,$degree,$email,$external);
+                $responsibleId = $newResponsible->id;
             }
-            $name=$request->other_responsible_name;
-            $degree=$request->degree_responsible;
-            $email=$request->email_responsible;
-            $external=$request->external_responsible;
-            $newResponsible = $this->createNewUser($name,$degree,$email,$external);
-            $responsibleId = $newResponsible->id;
-        }
 
-        // Validar y crear un nuevo corresponsable si es seleccionado "otro corresponsable"
-        $coresponsibleId = $request->input('coresponsible');
-        if ($coresponsibleId == 'other_coresponsible') {
-            $external=null;
-            if($request->external_coresponsible=='1') {
-                $external=$request->external_coresponsible;
+            // Validar y crear un nuevo corresponsable si es seleccionado "otro corresponsable"
+            $coresponsibleId = $request->input('coresponsible');
+            if ($coresponsibleId == 'other_coresponsible') {
+                $external=null;
+                if($request->external_coresponsible=='1') {
+                    $external=$request->external_coresponsible;
+                }
+                $name=$request->other_coresponsible_name;
+                $degree=$request->degree_coresponsible;
+                $email=$request->email_coresponsible;
+                $newCoresponsible = $this->createNewUser($name,$degree,$email,$external);
+                $coresponsibleId = $newCoresponsible->id;
             }
-            $name=$request->other_coresponsible_name;
-            $degree=$request->degree_coresponsible;
-            $email=$request->email_coresponsible;
-            $newCoresponsible = $this->createNewUser($name,$degree,$email,$external);
-            $coresponsibleId = $newCoresponsible->id;
+
+            // Guardar datos del evento
+            $user = Auth::user();
+            $event = new Event();
+            $event->responsible_id = $responsibleId;
+            $event->coresponsible_id = $coresponsibleId;
+            $event->register_id = $user->id;
+            $event->department_id = $request->input('department');
+            $event->title = $request->input('title');
+            $event->summary = $request->input('summary');
+            $event->start_date = $request->input('start_date');
+            $event->end_date = $request->input('end_date');
+            $event->start_time = $request->input('start_time');
+            $event->end_time = $request->input('end_time');
+            $event->audience_id = $request->input('audience');
+            $event->modality = $request->input('modality');
+            $event->scope = $request->input('scope');
+            $event->project_type = $request->input('project_type');
+            $event->gender_equality = $request->input('gender_equality');
+            $event->knowledge_area_id = $request->input('knowledge_area');
+            // $event->space_id = $request->input('space_id');
+            $event->registration_required  = $request->has('registration_required');
+            $event->registration_url = $request->input('registration_url');
+            $event->contact_email = $request->filled('contact_email') ? $request->input('contact_email') : null;
+            $event->website = $request->filled('website') ? $request->input('website') : null;
+            $event->requirements = $request->filled('requirements') ? $request->input('requirements') : null;
+
+            // Guardar la imagen de portada
+            if ($request->hasFile('cover_image')) {
+                $coverImage = $request->file('cover_image');
+                $imageName = time() . '_' . $coverImage->getClientOriginalName();
+                $coverImage->move(public_path('images/events'), $imageName);
+                $event->cover_image = 'images/events/' . $imageName;
+            }
+            
+            // Guardar el tipo de evento
+            $event->event_type_id = $request->input('event_type_id');
+
+            // Guardar el programa si está presente
+            // if ($request->hasFile('program')) {
+            //     $programFile = $request->file('program');
+            //     $programName = time() . '_' . $programFile->getClientOriginalName();
+            //     $programFile->move(public_path('program_files'), $programName);
+            //     $event->program = 'program_files/' . $programName;
+            // }
+
+            $event->transmission_required = $request->has('transmission_required');
+            $event->recording_required = $request->has('recording_required');
+            $event->photography_required = $request->has('photography_required');
+
+            if($request->input('space')!=null) {
+                $event->space_required=true;
+            }
+
+            $event->save();
+
+            // Se debe almacenar la información para validar transmision, grabacion y espacio
+            // Gestión de espacio
+            if($request->input('space')!=null) {
+                $eventSpace = new EventSpace();
+                $eventSpace->event_id=$event->id;
+                $eventSpace->space_id=$request->input('space');
+                $eventSpace->save();
+            }
+
+            // Gestión de transmisión
+            // if(isset($event->transmission_required)&&$event->transmission_required==true) {
+            //     $eventBroadcast = new EventStreaming();
+            //     $eventBroadcast->event_id=$event->id;
+            //     $eventBroadcast->save();
+            // }
+
+            // Gestión de espacio
+            // if(isset($event->recording_required)&&$event->recording_required==true) {
+            //     $eventRecording = new EventRecording();
+            //     $eventRecording->event_id=$event->id;
+            //     $eventRecording->save();
+            // }
+
+            // En caso de que se haya elegido el uso de un espacio físico, se envía a la pantalla para uso de recursos de dicho espacio
+            if($request->input('space')!=null) {
+                // si área del espacio solicitado tiene recursos se envía a la selección de los mismos caso contrario a selección de participantes
+                if($this->isAvailableResources($event)) {
+                    return redirect()->route('event.selectResources',$event->id)->with('success','Información del evento actualizada correctamente');
+                } else {
+                    return redirect()->route('events.participants',$event->id)->with('success','Información del evento actualizada correctamente');
+                }
+            }
+
+            return redirect()->route('events.participants',$event->id);
+            //return redirect()->route('events.my-events')->with('success', 'El evento ha sido creado exitosamente.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->route('events.createwithspace', [
+                'space' => $request->input('space'),
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
+                'start_time' => $request->input('start_time'),
+                'end_time' => $request->input('end_time'),
+            ])->withErrors($e->errors())->withInput();
         }
+    }
 
-        // Guardar datos del evento
-        $user = Auth::user();
-        $event = new Event();
-        $event->responsible_id = $responsibleId;
-        $event->coresponsible_id = $coresponsibleId;
-        $event->register_id = $user->id;
-        $event->department_id = $request->input('department');
-        $event->title = $request->input('title');
-        $event->summary = $request->input('summary');
-        $event->start_date = $request->input('start_date');
-        $event->end_date = $request->input('end_date');
-        $event->start_time = $request->input('start_time');
-        $event->end_time = $request->input('end_time');
-        $event->audience_id = $request->input('audience');
-        $event->modality = $request->input('modality');
-        $event->scope = $request->input('scope');
-        $event->project_type = $request->input('project_type');
-        $event->gender_equality = $request->input('gender_equality');
-        $event->knowledge_area_id = $request->input('knowledge_area');
-        // $event->space_id = $request->input('space_id');
-        $event->registration_required  = $request->has('registration_required');
-        $event->registration_url = $request->input('registration_url');
-        $event->contact_email = $request->filled('contact_email') ? $request->input('contact_email') : null;
-        $event->website = $request->filled('website') ? $request->input('website') : null;
-        $event->requirements = $request->filled('requirements') ? $request->input('requirements') : null;
+    public function storeWithoutSpace(Request $request)
+    {
+        $rules = [
+            'title' => [
+                'required',
+                'string',
+                'max:250'],
+            'summary' => [
+                'required',
+                'string',
+                'nullable',
+                'max:500'],
+            'contact_email' => ['nullable', 'email'],
+            'website' => ['nullable', 'url'],
+            'start_date' => [
+                'required',
+                'date','
+                after_or_equal:' . now()->addDays(4)->format('Y-m-d')],
+            'end_date' => [
+                'required',
+                'date',
+                'after_or_equal:start_date'],
+            'start_time' => [
+                'required',
+                'date_format:H:i',
+                'after_or_equal:07:00',
+                'before:end_time'],
+            'end_time' => [
+                'required',
+                'date_format:H:i',
+                'after:start_time',
+                'before_or_equal:21:00'],
+                'audience' => 'required|integer|exists:audiences,id',
+            'modality' => ['required', Rule::in(['Presencial', 'En línea', 'Mixta'])],
+            'scope' => ['required', Rule::in(['Nacional', 'Internacional'])],
+            'project_type' => ['required', Rule::in(['Abierto', 'Cerrado'])],
+            'gender_equality' => ['required', Rule::in(['No', 'Equidad de género', 'Estadísticas desagregadas por sexo', 'Género', 'Igualdad de género'])],
+            'knowledge_area' => 'required|integer|exists:knowledge_areas,id',
+            'cover_image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg',
+                'max:5120'],            
+            'registration_url' => [
+                'nullable',
+                'required_if:registration_required,1'],
+            
+            'responsible' => [
+                'required',  
+                'distinct:coresponsible'],
+                
+            'coresponsible' => [
+                'required', 
+                'distinct:responsible'],
+            'other' => [
+                'nullable',
+                'required_if:event_type_id,Other',
+                'string',
+                'max:250',
+            ],
+            'category' => [
+                'nullable',
+                'required_if:event_type_id,Other',
+                'integer',
+                'exists:event_categories,id',
+            ],
+            'other_responsible_name' => [
+                'nullable',
+                'required_if:responsible,other_responsible',
+                'string',
+                'max:250',
+            ],
+            'degree_responsible' => [
+                'nullable',
+                'required_if:responsible,other_responsible',
+            ],
+            'email_responsible' => [
+                'nullable',
+                'required_if:responsible,other_responsible',
+                'email',
+                'unique:users,email',
+            ],
+            'other_coresponsible_name' => [
+                'nullable',
+                'required_if:coresponsible,other_coresponsible',
+                'string',
+                'max:250',
+            ],
+            'degree_coresponsible' => [
+                'nullable',
+                'required_if:coresponsible,other_coresponsible',
+            ],
+            'email_coresponsible' => [
+                'nullable',
+                'required_if:coresponsible,other_coresponsible',
+                'email',
+                'unique:users,email',
+                Rule::unique('users', 'email')->where(function ($query) {
+                    // Asegurarse de que el correo del corresponsable sea diferente al del responsable
+                    $query->where('email', '!=', request('email_responsible'));
+                }),
+            ],
+        ];
+    
+        $messages = [
+            'title.required' => 'El título del evento es obligatorio.',
+            'title.string' => 'El título del evento debe ser una cadena de texto.',
+            'title.max' => 'El título del evento no puede exceder los 250 caracteres.',
+            
+            'summary.required' => 'El resumen del evento es obligatorio.',
+            'summary.string' => 'El resumen del evento debe ser una cadena de texto.',
+            'summary.max'=>'El resumen no debe exceder los 500 caracteres.',
 
-        // Guardar la imagen de portada
-        if ($request->hasFile('cover_image')) {
-            $coverImage = $request->file('cover_image');
-            $imageName = time() . '_' . $coverImage->getClientOriginalName();
-            $coverImage->move(public_path('images/events'), $imageName);
-            $event->cover_image = 'images/events/' . $imageName;
-        }
-        
-        // Guardar el tipo de evento
-        $event->event_type_id = $request->input('event_type_id');
+            'start_date.required' => 'La fecha de inicio es obligatoria.',
+            'start_date.date' => 'La fecha de inicio debe ser una fecha válida.',
+            'start_date.after_or_equal' => 'La fecha de inicio debe ser igual o posterior a ' . now()->addDays(4)->format('Y-m-d'),
+            
+            'end_date.required' => 'La fecha de finalización es obligatoria.',
+            'end_date.date' => 'La fecha de finalización debe ser una fecha válida.',
+            'end_date.after_or_equal' => 'La fecha de finalización debe ser igual o posterior a la fecha de inicio.',
+            
+            'start_time.required' => 'La hora de inicio es obligatoria.',
+            'start_time.date_format' => 'La hora de inicio debe estar en formato HH:mm.',
+            'start_time.after_or_equal' => 'La hora de inicio debe ser igual o posterior a las 07:00 AM.',
+            'start_time.before' => 'La hora de inicio debe ser anterior a la hora de finalización.',
+            
+            'end_time.required' => 'La hora de finalización es obligatoria.',
+            'end_time.date_format' => 'La hora de finalización debe estar en formato HH:mm.',
+            'end_time.after' => 'La hora de finalización debe ser posterior a la hora de inicio.',
+            'end_time.before_or_equal' => 'La hora de finalización debe ser igual o anterior a las 09:00 PM.',
+            
+            'cover_image.image' => 'El archivo de imagen de portada debe ser una imagen válida.',
+            'cover_image.mimes' => 'Los formatos admitidos para la imagen de portada son .jpg, .jpeg y .png',
+            'cover_image.max' => 'La imagen de portada es demasiado pesada, el tamaño máximo permitido es de 5 MB.',
+            
+            'registration_required.boolean' => 'El campo "Registro requerido" debe ser verdadero o falso.',
+            'registration_url.required_if' => 'La URL de registro es obligatoria cuando el registro es requerido.',
+                      
+            'responsible.required' => 'El campo "Responsable" es obligatorio.',
+            'responsible.distinct' => 'El responsable y el corresponsable deben ser usuarios diferentes.',
+            
+            'coresponsible.required' => 'El campo "Corresponsable" es obligatorio.',
+            'coresponsible.distinct' => 'El corresponsable y el responsable deben ser usuarios diferentes.',
 
-        // Guardar el programa si está presente
-        // if ($request->hasFile('program')) {
-        //     $programFile = $request->file('program');
-        //     $programName = time() . '_' . $programFile->getClientOriginalName();
-        //     $programFile->move(public_path('program_files'), $programName);
-        //     $event->program = 'program_files/' . $programName;
-        // }
+            'other.required_if' => 'El campo "Otro" es obligatorio cuando el tipo de evento es "Otro".',
+            'other.string' => 'El campo "Otro" debe ser una cadena de texto.',
+            'other.max' => 'El campo "Otro" no debe exceder los 250 caracteres.',
 
-        $event->transmission_required = $request->has('transmission_required');
-        $event->recording_required = $request->has('recording_required');
+            'other_responsible_name.required_if' => 'Ingresa el nombre del responsable',
+            'degree_responsible.required_if' => 'Selecciona el Grado académico',
+            'email_responsible.required_if' => 'Ingresa el correo electrónico del corresponsable',
+            'email_responsible.email' => 'El correo electrónico invalido.',
+            'email_responsible.unique' => 'Ya hay un usuario registrado con este correo electrónico.',
 
-        if($request->input('space')!=null) {
-            $event->space_required=true;
-        }
+            'other_coresponsible_name.required_if' => 'Ingresa el nombre del corresponsable.',
+            'degree_coresponsible.required_if' => 'Seleciona el Grado académico',
+            'email_coresponsible.required_if' => 'El campo "Correo electrónico del otro corresponsable" es obligatorio cuando seleccionas "Otro corresponsable".',
+            'email_coresponsible.email' => 'El correo electrónico invalido.',
+            'email_coresponsible.unique' => 'Ya hay un usuario registrado con este correo electrónico.',
 
-        $event->save();
+            'contact_email.email' => 'Por favor, ingresa una dirección de correo electrónico válida.',
 
-        // Se debe almacenar la información para validar transmision, grabacion y espacio
-        // Gestión de espacio
-        if($request->input('space')!=null) {
-            $eventSpace = new EventSpace();
-            $eventSpace->event_id=$event->id;
-            $eventSpace->space_id=$request->input('space');
-            $eventSpace->save();
-        }
+            'website.url' => 'Por favor, ingresa una URL válida para el sitio web.',
+        ];
+    
+        try {
+            $validatedData = $request->validate($rules, $messages);
 
-        // Gestión de tranmisión
-        if(isset($event->transmission_required)&&$event->transmission_required==true) {
-            $eventBroadcast = new EventStreaming();
-            $eventBroadcast->event_id=$event->id;
-            $eventBroadcast->save();
-        }
+            $eventType = $request->input('event_type_id');
 
-        // Gestión de espacio
-        if(isset($event->recording_required)&&$event->recording_required==true) {
-            $eventRecording = new EventRecording();
-            $eventRecording->event_id=$event->id;
-            $eventRecording->save();
-        }
+            if ($eventType == 'Other') {
+                // Si el tipo de evento es "Other", crea un nuevo tipo de evento
+                $newEventType = new EventType();
+                $newEventType->name = $request->input('other');
+                $newEventType->event_category_id=$request->input('category');
+                $newEventType->register_by = Auth::id();
+                $newEventType->save();
 
-        // En caso de que se haya elegido el uso de un espacio físico, se envía a la pantalla para uso de recursos de dicho espacio
-        if($request->input('space')!=null) {
-            // si área del espacio solicitado tiene recursos se envía a la selección de los mismos caso contrario a selección de participantes
-            if($this->isAvailableResources($event)) {
-                return redirect()->route('event.selectResources',$event->id)->with('success','Información del evento actualizada correctamente');
+                // Actualiza el valor de event_type_id para ser el ID del nuevo tipo de evento
+                $request->merge(['event_type_id' => $newEventType->id]);
+            }
+
+            // Validar y crear un nuevo responsable si es seleccionado "otro responsable"
+            $responsibleId = $request->input('responsible');
+            if ($responsibleId == 'other_responsible') {
+                $external=null;
+                if($request->external_responsible=='1') {
+                    $external=$request->external_responsible;
+                }
+                $name=$request->other_responsible_name;
+                $degree=$request->degree_responsible;
+                $email=$request->email_responsible;
+                $external=$request->external_responsible;
+                $newResponsible = $this->createNewUser($name,$degree,$email,$external);
+                $responsibleId = $newResponsible->id;
+            }
+
+            // Validar y crear un nuevo corresponsable si es seleccionado "otro corresponsable"
+            $coresponsibleId = $request->input('coresponsible');
+            if ($coresponsibleId == 'other_coresponsible') {
+                $external=null;
+                if($request->external_coresponsible=='1') {
+                    $external=$request->external_coresponsible;
+                }
+                $name=$request->other_coresponsible_name;
+                $degree=$request->degree_coresponsible;
+                $email=$request->email_coresponsible;
+                $newCoresponsible = $this->createNewUser($name,$degree,$email,$external);
+                $coresponsibleId = $newCoresponsible->id;
+            }
+
+            // Guardar datos del evento
+            $user = Auth::user();
+            $event = new Event();
+            $event->responsible_id = $responsibleId;
+            $event->coresponsible_id = $coresponsibleId;
+            $event->register_id = $user->id;
+            $event->department_id = $request->input('department');
+            $event->title = $request->input('title');
+            $event->summary = $request->input('summary');
+            $event->start_date = $request->input('start_date');
+            $event->end_date = $request->input('end_date');
+            $event->start_time = $request->input('start_time');
+            $event->end_time = $request->input('end_time');
+            $event->audience_id = $request->input('audience');
+            $event->modality = $request->input('modality');
+            $event->scope = $request->input('scope');
+            $event->project_type = $request->input('project_type');
+            $event->gender_equality = $request->input('gender_equality');
+            $event->knowledge_area_id = $request->input('knowledge_area');
+            // $event->space_id = $request->input('space_id');
+            $event->registration_required  = $request->has('registration_required');
+            $event->registration_url = $request->input('registration_url');
+            $event->contact_email = $request->filled('contact_email') ? $request->input('contact_email') : null;
+            $event->website = $request->filled('website') ? $request->input('website') : null;
+            $event->requirements = $request->filled('requirements') ? $request->input('requirements') : null;
+
+            // Guardar la imagen de portada
+            if ($request->hasFile('cover_image')) {
+                $coverImage = $request->file('cover_image');
+                $imageName = time() . '_' . $coverImage->getClientOriginalName();
+                $coverImage->move(public_path('images/events'), $imageName);
+                $event->cover_image = 'images/events/' . $imageName;
             } else {
-                return redirect()->route('events.participants',$event->id)->with('success','Información del evento actualizada correctamente');
+                return redirect()->route('dashboard')->with('success','Es necesario subir el cartel para difusión.');
             }
-        }
+            
+            // Guardar el tipo de evento
+            $event->event_type_id = $request->input('event_type_id');
 
-        return redirect()->route('events.participants',$event->id);
-        //return redirect()->route('events.my-events')->with('success', 'El evento ha sido creado exitosamente.');
+            $event->save();
+
+            return redirect()->route('events.participants',$event->id);
+            //return redirect()->route('events.my-events')->with('success', 'El evento ha sido creado exitosamente.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->route('events.createWithoutSpace', [
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
+                'start_time' => $request->input('start_time'),
+                'end_time' => $request->input('end_time'),
+            ])->withErrors($e->errors())->withInput();
+        }
     }
 
     public function storePrivate(Request $request)
@@ -1127,6 +1578,15 @@ class EventController extends Controller
         if($event->space_required=='0') {
             $event->status='finalizado';
         }
+
+        if($event->space_required==0) {
+            // Obtén el usuario autenticado
+            $user = Auth::user();
+            $event->published_by=$user->id;
+            $event->status="finalizado";
+            $event->published=1;            
+        }
+
         $event->save();
         
         // Notificación al responsable y departamento responsable del evento

@@ -220,7 +220,7 @@
                     @method('DELETE')
                     
                     <button type="submit" class="mx-2 px-4 py-2 bg-red-500 text-white font-semibold rounded-md" onclick="return confirm('¿Estás seguro de que deseas cancelar este registro? Esta acción borrará la solicitud de todo el sistema.')">
-                        {{ __('Borrar registro') }}
+                        {{ __('Cancelar registro') }}
                     </button>
                 </form>    
             @endif

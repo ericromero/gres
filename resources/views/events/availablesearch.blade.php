@@ -49,7 +49,7 @@
                                     <p>Ubicación: {{ $space->location }}</p>
                                 </div>
                                 <div class="px-4 pb-4">
-                                    <form action="{{ route('events.createwithSpace') }}" method="POST">
+                                    <form action="{{ route('events.createWithSpace') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="space" value="{{ $space->id }}">
                                         <input type="hidden" name="start_date" value="{{ $start_date }}">
@@ -60,7 +60,7 @@
                                         <input type="checkbox" name="private" id="private{{ $i }}">
                                         <label for="private{{ $i++ }}" class="ml-2">Evento interno o privado</label>
                                 
-                                        <button type="submit" class="block mb-4 mt-2 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
+                                        <button type="submit" class="block mb-4 mt-2 text-center px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 inline-block">
                                             Seleccionar este espacio
                                         </button>
                                     </form>
@@ -77,20 +77,20 @@
                     <div class="overflow-hidden shadow-md rounded-lg border border-gray-700 dark:border-gray-300">
                         <img src="{{ asset('images/videoconferencia.png') }}" alt="Imagen del espacio" class="w-full h-40 object-cover">
                         <div class="p-4">
-                            <h3 class="text-lg font-semibold">Solo difusión</h3>
+                            <h3 class="text-lg font-semibold">Evento en línea <span class="text-sm">(solo difusión)</span></h3>
                         </div>
                         <div class="p-4 border-t border-gray-700 dark:border-gray-300">
-                            <p>Subir información para difundir un evento en Cartelera-Psicología (no se requiere un espacio físico).</p>
+                            <p>Subir información de un evento en línea para difundir en la Cartelera-Psicología.</p>
                         </div>
                         <div class="px-4 pb-4">
-                            <a href="{{ route('events.createwithSpace', [
+                            <a href="{{ route('events.createWithoutSpace', [
                                 'space' => '0',
                                 'start_date' => $start_date,
                                 'end_date' => $end_date,
                                 'start_time' => $start_time,
                                 'end_time' => $end_time,
-                            ]) }}" class="block mb-4 text-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 inline-block">
-                                Seleccionar evento por videoconferencia
+                            ]) }}" class="block mb-4 text-center px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-600 inline-block">
+                                Quiero difundir mi evento
                             </a>
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                         
                         <div class="my-2">
                             <label for="end_date" class="text-gray-700 dark:text-gray-300 font-bold mb-2">Fecha de fin</label>
-                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="end_date" min="{{ $allowedStartDate }}" max="{{ $allowedEndDate }}" value="{{ old('end_date') }}" required>                            
+                            <input class="dark:bg-gray-800 dark:text-white" type="date" name="end_date" min="{{ now()->addWeekdays(4)->format('Y-m-d') }}" max="{{ $allowedEndDate }}" value="{{ old('end_date') }}" required>                            
                         </div>
                         @error('end_date')
                             <span class="text-sm text-red-500">{{ $message }}</span>

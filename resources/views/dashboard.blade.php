@@ -16,12 +16,13 @@
     }
 </style>
 
-
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Gestor de Recursos, Espacios y Servicios ') }}
         </h2>
+        {{-- <script src="https://cdn.botpress.cloud/webchat/v2.2/inject.js"></script>
+        <script src="https://files.bpcontent.cloud/2024/11/14/23/20241114232232-ICO7LHVB.js"></script> --}}
     </x-slot>
 
     <div class="py-12">
