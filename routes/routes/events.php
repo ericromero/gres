@@ -17,7 +17,7 @@ Route::middleware(['role:Coordinador|Gestor de eventos'])->group(function () {
     Route::post('/evento/guardar', [EventController::class, 'store'])->name('events.store');
 
     // Ruta para guardar el nuevo evento en la base de datos
-    Route::post('/evento/guardar', [EventController::class, 'storeWithoutSpace'])->name('events.storeWithoutSpace');
+    Route::post('/evento/guardar/difusion', [EventController::class, 'storeWithoutSpace'])->name('events.storeWithoutSpace');
 
     // Ruta para guardar el nuevo evento en la base de datos
     Route::post('/evento/guardar/interno', [EventController::class, 'storePrivate'])->name('events.store.private');
