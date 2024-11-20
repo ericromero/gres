@@ -1,7 +1,7 @@
 @component('mail::message')
 {{-- Imagen --}}
 
-![Logo]({{ asset('images/50anios.png') }})
+![Logo]({{ asset('images/logo-mail.png') }})
 
 # Buen día, le notificamos que la solicitud para uso del espacio solicitado fue autorizada.
 

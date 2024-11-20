@@ -1,7 +1,7 @@
 @component('mail::message')
 {{-- Imagen --}}
 
-![Logo]({{ asset('images/50anios.png') }})
+![Logo]({{ asset('images/logo-mail.png') }})
 
 # Se ha publicado un nuevo evento en Cartelera - Psicología
 

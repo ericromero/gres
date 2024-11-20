@@ -1,7 +1,7 @@
 @component('mail::message')
 {{-- Imagen --}}
 
-![Logo]({{ asset('images/50anios.png') }})
+![Logo]({{ asset('images/logo-mail.png') }})
 
 # Buen día, le notificamos que se ha realizado la cancelación del siguiente evento.
 
