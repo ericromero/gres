@@ -85,9 +85,6 @@
             </table>
         </div>
 
-        <div>
-            {{ $users->links() }}
-        </div>
 
         <div class="my-4">
             <a href="{{ route('users.index') }}" class="px-4 py-2 bg-red-500 text-white font-semibold rounded-md">Regresar</a>

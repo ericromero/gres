@@ -476,6 +476,8 @@
                         <!-- Servicios de UDEMAT -->                        
                         <div class="mb-4">
                             <h3 class="font-bold">Servicios de UDEMAT</h3>
+                            <h2 class="border border-2 p-2 border-gray-700 dark:border-gray-300">Nota: Seleccionar una o más de estas opciones <span class="font-bold">NO SUSTITUYE</span> el trámite ante la UDEMAT. Estas opciones facilitarán la logística y el seguimiento del trámite correspondiente.</h2>
+                            
                             <!-- Transmisión por YouTube -->
                             <input type="hidden" name="transmission_required" value="0">
                             <label for="transmission_required" class="inline-flex items-center">

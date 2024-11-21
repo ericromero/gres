@@ -332,7 +332,7 @@ class UserController extends Controller
             });
         }
     
-        $users = $query->paginate(30);
+        $users = $query->get();
     
         return view('users.list', compact('users','roles'));
     }
