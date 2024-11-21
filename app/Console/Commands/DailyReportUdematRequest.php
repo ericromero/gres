@@ -7,6 +7,7 @@ use App\Models\Event;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DailyReportUdematMail;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class DailyReportUdematRequest extends Command
 {
@@ -48,11 +49,14 @@ class DailyReportUdematRequest extends Command
             })->get();
 
         if ($events->isEmpty()) {
-            $this->info('No hay eventos con servicios especiales registrados el día anterior.');
+            $this->info("No hay eventos con servicios especiales registrados el día anterior {$yesterday}.");
+            Log::info("No hay eventos con servicios especiales registrados el día anterior {$yesterday}.");
             return Command::SUCCESS;
         }
 
         $eventCount = $events->count();
+        Log::info("Se encontraron {$eventCount} eventos con servicios requeridos al dia {$yesterday}.");
+        $this->info("Se encontraron {$eventCount} eventos con servicios requeridos al dia {$yesterday}.");
         $eventData = $events->map(function ($event) {
             $responsible=User::find($event->responsible_id);
             return [
@@ -73,7 +77,8 @@ class DailyReportUdematRequest extends Command
         Mail::to('udemat.psicologia@unam.mx')
             ->send(new DailyReportUdematMail($eventCount, $eventData));
 
-        $this->info("Correo enviado con {$eventCount} eventos registrados el día anterior.");
+        Log::info("Correo enviado con {$eventCount} eventos registrados el día anterior del día {$yesterday}.");
+        $this->info("Correo enviado con {$eventCount} eventos registrados el día anterior del día {$yesterday}.");
         return Command::SUCCESS;
     }
 }
