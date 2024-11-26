@@ -41,7 +41,7 @@ class EventController extends Controller
     public $diffusionEmails;
     
     public function __construct() {
-        $this->diffusionEmails = ['augarued@unam.mx', 'alejandramireles@psicologia.unam.mx', 'publicaciones.psicologia@unam.mx'];
+        $this->diffusionEmails = ['augarued@unam.mx', 'alejandramireles@psicologia.unam.mx'];
     }
 
     public function cartelera() {
